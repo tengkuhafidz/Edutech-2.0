@@ -1,0 +1,26 @@
+.postMenu {
+    color: #AAA;
+    font-size: 0.8em;
+}
+
+.postMenu:hover {
+    color: #888;
+    cursor: pointer;
+}
+
+.postedAt {
+  color: #AAA;
+  font-size: 0.5em;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+.singlePost {
+  margin-top: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+/* .feedPaper {
+  background-color: #EEE !important;
+} */
