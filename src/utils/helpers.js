@@ -11,7 +11,6 @@ const retrieveCookie = (name) => {
 };
 
 const formatMergedCalendarEvents = (scheduleItems, groupId) => {
-  console.log('formatMergedCalendarEvents', scheduleItems);
   let formattedEvents = [];
   if (scheduleItems && scheduleItems.length > 0) {
     for (let i = 0; i < scheduleItems.length; i += 1) {

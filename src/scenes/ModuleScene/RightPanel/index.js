@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import { Row, Button } from 'react-bootstrap';
-import { Paper, Divider } from 'material-ui';
+import { Row, Button, FormControl } from 'react-bootstrap';
+import { RaisedButton, Divider, Paper, FlatButton, List, ListItem, Avatar, Dialog, Subheader } from 'material-ui';
 import moment from 'moment';
 import './styles.css';
 
@@ -10,9 +10,12 @@ import AssessmentListView from './AssessmentListView';
 import ModuleStore from '../../../stores/ModuleStore/ModuleStore';
 import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
 
+import { USER_IMAGE_PATH } from '../../../utils/constants';
+
 @observer
 class RightPanel extends Component {
   constructor() {
+    const tempDescription = ModuleStore.selectedModule.description;
     super();
     this.state = {
       assessmentDialogState: false,
@@ -21,8 +24,19 @@ class RightPanel extends Component {
       title: '',
       description: '',
       location: '',
+      openMembersDialog: false,
+      editView: false,
+      tempDescription,
+    };
+  }
+
+  handleEnterPress(e) {
+    if (e.which === 13) {
+      ModuleStore.editModuleDescription(e.target.value);
+      this.setState({ editView: false });
     }
   }
+
   handleCloseAssessmentForm() {
     this.setState({
       assessmentDialogState: false,
@@ -76,15 +90,83 @@ class RightPanel extends Component {
     }
     return '';
   }
+  renderMembersDialog() {
+    console.log('ModuleStore.selectedModule', ModuleStore.selectedModule)
+    let instructorsList = <ListItem primaryText="Instructors will be assigned soon." />;
+    if (ModuleStore.instructors && ModuleStore.instructors > 0) {
+      instructorsList = ModuleStore.instructors.map(member => (
+          <ListItem
+            primaryText={member.userFirstName + " " + member.userLastName}
+            leftAvatar={<Avatar src={USER_IMAGE_PATH + member.imgFileName} />}
+          />
+        ));
+    }
+    let studentsList = <ListItem primaryText="Students will be assigned soon." />;
+    if (ModuleStore.students && ModuleStore.students.length > 0) {
+      studentsList = ModuleStore.students.map(member => (
+          <ListItem
+            primaryText={member.userFirstName + " " + member.userLastName}
+            leftAvatar={<Avatar src={USER_IMAGE_PATH + member.imgFileName} />}
+          />
+        ));
+    }
+
+    const actions = [
+     <FlatButton
+       label="Close"
+       primary
+       onClick={() => this.setState({ openMembersDialog: false })}
+     />,
+    ];
+    return (
+      <Dialog
+        title={`${ModuleStore.selectedModule.title} Members`}
+        actions={actions}
+        modal={false}
+        open={this.state.openMembersDialog}
+        onRequestClose={() => this.setState({ openMembersDialog: false })}
+        autoScrollBodyContent
+      >
+        <List>
+          <Subheader>Instructors</Subheader>
+          {instructorsList}
+          <Subheader>Students</Subheader>
+          {studentsList}
+        </List>
+      </Dialog>
+    );
+  }
+  renderGroupDescription() {
+    if (this.state.editView) {
+      return (
+        <FormControl
+          type="text"
+          value={this.state.tempDescription}
+          onChange={e => this.setState({ tempDescription: e.target.value })}
+          onKeyPress={e => this.handleEnterPress(e)}
+        />
+      )
+    }
+    return (
+        <p>
+          {ModuleStore.selectedModule.description}
+          <i className="fas fa-edit" onClick={() => this.setState({ editView: !this.state.editView })} />
+        </p>
+    );
+  }
   render() {
     const module = ModuleStore.getModule(this.props.moduleCode);
     const userType = localStorage.getItem('userType');
     const { moduleCode, title } = module;
     return (
             <Paper className="moduleInfo">
-              <Row>
-                <h1> {moduleCode} </h1>
-                <p className="lead">{title}</p>
+              <Row className="sideTopSection">
+                <h2> {moduleCode} </h2>
+                {this.renderGroupDescription()}
+                <br />
+                <RaisedButton label="View Members" onClick={() => this.setState({ openMembersDialog: true })} />
+                <br />
+                <br />
               </Row>
               <Divider />
               <Row className="taskChartItem">
@@ -92,6 +174,7 @@ class RightPanel extends Component {
               {this.renderCreateAssessmentBtn(userType)}
               {this.renderAddAssessmentDialog(moduleCode)}
               </Row>
+              {this.renderMembersDialog()}
             </Paper>
     );
   }

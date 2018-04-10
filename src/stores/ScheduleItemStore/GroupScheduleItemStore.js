@@ -122,6 +122,15 @@ class GroupScheduleItemStore {
     const sortedScheduleItems = this.sortScheduleItemsAsc(upcomingScheduleItems);
     return sortedScheduleItems;
   }
+  @computed
+  get sortedUpcomingMeetings() {
+    const upcomingScheduleItems = this.getUpcomingScheduleItems(this.scheduleItems);
+    const sortedScheduleItems = this.sortScheduleItemsAsc(upcomingScheduleItems);
+    const sortedUpcomingMeetings = sortedScheduleItems.filter(scheduleItem =>
+      (scheduleItem.itemType === 'meeting' && scheduleItem.groupId === GroupStore.selectedGroup.id));
+    return sortedUpcomingMeetings;
+  }
+
   @action
   getKeyDates(itemType) {
     return this.sortedUpcomingKeyDates.filter(scheduleItem => scheduleItem.itemType === itemType);

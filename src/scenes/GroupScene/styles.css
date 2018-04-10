@@ -6,9 +6,20 @@
 }
 
 .sideSectionItem {
-  margin: 30px 0;
+  margin: 25px 0;
 }
 
 .statNumberTask {
   font-size: 5.2em;
+}
+
+.sideTopSection .fa-edit {
+  display: none;
+
+}
+
+.sideTopSection:hover .fa-edit {
+  display: inline;
+  margin-left: 5px;
+  color: #AAA;
 }

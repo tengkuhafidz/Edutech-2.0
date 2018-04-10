@@ -26,7 +26,6 @@ class ScheduleItemStore {
       const scheduleItems = await findUserScheduleItems(username);
       const semester = await findSemester();
       runInAction(() => {
-        console.log('scheduleItems in Store: ', scheduleItems)
         // populate with fake data if no items, so bigCalendar will show #hack
         this.scheduleItems = scheduleItems.data.length > 0 ?
           scheduleItems.data : this.scheduleItems;
