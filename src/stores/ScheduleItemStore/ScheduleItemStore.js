@@ -27,6 +27,7 @@ class ScheduleItemStore {
       const scheduleItems = await findUserScheduleItems(username);
       const semester = await findSemester();
       runInAction(() => {
+        console.log('scheduleItems in Store: ', scheduleItems)
         // populate with fake data if no items, so bigCalendar will show #hack
         this.scheduleItems = scheduleItems.data.length > 0 ?
           scheduleItems.data : this.scheduleItems;
@@ -108,6 +109,16 @@ class ScheduleItemStore {
     } catch (e) {
       swal('Error', 'Error deleting schedule item', 'error');
     }
+  }
+
+  @action
+  getModuleKeyDates(moduleCode) {
+    return this.sortedUpcomingKeyDates.filter(scheduleItem => (scheduleItem.itemType === 'assessment' || scheduleItem.itemType === 'task') && scheduleItem.moduleCode === moduleCode);
+  }
+
+  @action
+  getGroupKeyDates(groupId) {
+    return this.sortedUpcomingKeyDates.filter(scheduleItem => (scheduleItem.itemType === 'meeting' || scheduleItem.itemType === 'task') && scheduleItem.groupId === groupId);
   }
 
   getUpcomingScheduleItems(scheduleItems) {

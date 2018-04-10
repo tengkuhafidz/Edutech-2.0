@@ -5,8 +5,12 @@ import { DateTimePicker } from 'react-widgets';
 import Autosuggest from 'react-bootstrap-autosuggest';
 import moment from 'moment';
 import swal from 'sweetalert';
+import FileSaver from 'file-saver';
 import { observer } from 'mobx-react';
+import axios from 'axios';
 
+
+import UtilStore from '../../../../stores/UtilStore/UtilStore';
 import { getScheduleTypeColor } from '../../../../utils/helpers';
 import ScheduleItemStore from '../../../../stores/ScheduleItemStore/ScheduleItemStore';
 
@@ -19,9 +23,11 @@ export default class ViewScheduleItemDialog extends Component {
     edittedLocation: '',
     edittedStart: null,
     edittedEnd: null,
+    files: null,
+    doneFetching: false,
   }
   componentWillMount() {
-    const { title, start, end, description, location } = this.props.selectedEvent; // eslint-disable-line
+    const { id, title, start, end, description, location, type } = this.props.selectedEvent; // eslint-disable-line
     this.setState({
       edittedTitle: title,
       edittedDescription: description,
@@ -29,6 +35,17 @@ export default class ViewScheduleItemDialog extends Component {
       edittedStart: start,
       edittedEnd: end,
     });
+
+    if (type === 'timetable') {
+      axios.get(`/lesson/allAttachments/${id}`)
+        .then((res) => {
+          this.setState({ files: res.data, doneFetching: true })
+          // console.log("lessonId and file", lessonId, this.state.files);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+    }
   }
   getActions(type, handleCloseDialog, eventId) {
     if (this.state.openEditForm) {
@@ -41,9 +58,30 @@ export default class ViewScheduleItemDialog extends Component {
       actions.push(<FlatButton label="Remove" primary onClick={() => this.handleRemoveScheduleItem(eventId, handleCloseDialog)} />);
       actions.push(<FlatButton label="Edit" primary onClick={() => this.setState({ openEditForm: true })} />);
     }
+    if (type === 'timetable') {
+      if (!this.state.doneFetching) {
+        actions.push(<span>Loading. . . </span>);
+      } else if (this.state.doneFetching && this.state.files && this.state.files.length > 0) {
+        actions.push(<FlatButton label="Download Files" info onClick={() => this.downloadFiles(eventId)} />);
+      }
+    }
+
     return actions;
   }
+  async downloadFiles(lessonId) {
+    try {
+      const files = await axios.get(`/lesson/downloadAllAttachments/${lessonId}`, { responseType: 'blob' });
+      const downloadedZip = files.data;
+      const { title, start } = this.props.selectedEvent;
+      const dateTimeFormat = moment(start).format('Do MMMM');
+      const zipFileName = title.concat("_" + dateTimeFormat + ".zip"); //eslint-disable-line
+      FileSaver.saveAs(downloadedZip, zipFileName);
+      UtilStore.openSnackbar(`Downloading ${zipFileName} . . .`)
+    } catch (e) {
+      swal('error!', 'error downloading file', 'error');
+    }
 
+  }
   handleCancelEdit() {
     const { title, start, end, description, location } = this.props.selectedEvent; // eslint-disable-line
     this.setState({
