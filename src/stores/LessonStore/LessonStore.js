@@ -102,7 +102,7 @@ class LessonStore {
   fetchFilesForLesson(lessonId) {
       var attachmentArr = [];
       var index = _.findIndex(this.lessonList, (item) => {return item.id === lessonId});
-      
+
       axios.get(`/lesson/allAttachments/${lessonId}`)
       .then(action("fetchSuccess", res => {
                 // const filteredProjects = somePreprocessing(projects)
@@ -110,14 +110,13 @@ class LessonStore {
                 // this.state = "done"
 
                 this.lessonList[index].files = res.data;
-                console.log("lesson", this.lessonList[index])
             }),
             // inline created action
             action("fetchError", error => {
                 console.log(error)
-            }) 
+            })
       )
-    }  
+    }
 
 }
 

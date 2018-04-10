@@ -16,9 +16,9 @@ class SingleAssignmentGroup extends Component {
 				}
 			})
 			if(studentExist)
-				return true;	
+				return true;
 		}
-		
+
 		return false;
 	}
 
@@ -32,17 +32,17 @@ class SingleAssignmentGroup extends Component {
 		return(
 			<div>
 				<h3>
-			    	{assignment.title} 
+			    	{assignment.title}
 			    	<h5><Label bsStyle="default">Max Group Size: {moduleGrouping[0].groupSize}</Label></h5>
 				</h3>
 				<Row>
 					{
 						(moduleGrouping.length > 0) ? (
 							moduleGrouping.map((group) => {
-								return <GroupingListStudent key={group.id} group={group} assignmentId={assignment.id} studentExist={studentExist}/>
+								return <GroupingListStudent key={group.id} group={group} assignmentId={assignment.id} studentExist={studentExist} moduleCode={assignment.module.moduleCode}/>
 							})
 							)
-						: (<span></span>)		
+						: (<span></span>)
 					}
 				</Row>
 				<hr />
