@@ -46,7 +46,7 @@ class ModuleStore {
 		try {
 			this.selectedModule.description = newDescription;
 			await axios.put(`/module/${this.selectedModule.moduleCode}`, this.selectedModule);
-			UtilStore.openSnackbar('Group decription updated')
+			UtilStore.openSnackbar('Module decription updated')
 		} catch (e) {
 			swal('Error', 'Error updating group description', 'error')
 		}

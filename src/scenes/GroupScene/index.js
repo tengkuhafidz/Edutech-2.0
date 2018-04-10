@@ -43,11 +43,12 @@ export default class GroupScene extends Component {
     await GroupStore.setSelectedGroup(groupId);
     await GroupTaskStore.fetchGroupTasks(groupId);
     await GroupScheduleItemStore.populateGroupScheduleItems(groupId);
-    this.setState({ tempDescription: GroupStore.selectedGroup.description})
+    this.setState({ tempDescription: GroupStore.selectedGroup.description })
   }
   handleEnterPress(e) {
     if (e.which === 13) {
       GroupStore.editGroupDescription(e.target.value);
+      this.setState({ editView: false })
     }
   }
 
@@ -171,7 +172,7 @@ export default class GroupScene extends Component {
                 <h3> {GroupStore.selectedGroup.title} </h3>
                 {this.renderGroupDescription()}
                 <br />
-                <RaisedButton label="View Members" onClick={() => this.setState({ openMembersDialog: true })} />
+                <RaisedButton className="viewMembersButton" label="View Members" onClick={() => this.setState({ openMembersDialog: true })} />
                 <br />
                 <br />
               </Row>
@@ -183,7 +184,7 @@ export default class GroupScene extends Component {
                 </div>
               </Row>
               <Divider />
-              <Row className="sideSectionItem">
+              <Row className="">
                 <h1 className="statNumberTask"> {GroupTaskStore.taskDeadlineInAWeek.length} </h1>
                 <p className="lead">deadline in 7 days</p>
               </Row>
