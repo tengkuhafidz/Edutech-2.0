@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
+import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
-import { Modal,Button } from 'react-bootstrap';
+import { Dialog } from 'material-ui';
+import { Modal, Button, Row, Col, ControlLabel, FormControl } from 'react-bootstrap';
+import Autosuggest from 'react-bootstrap-autosuggest';
+import { DateTimePicker } from 'react-widgets';
 import moment from 'moment';
 import axios from 'axios';
 import {observer} from 'mobx-react';
@@ -10,6 +13,8 @@ import momentLocalizer from 'react-widgets-moment';
 
 import MeetingStore from '../../../stores/MeetingStore/MeetingStore';
 import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
+import GroupScheduleItemStore from '../../../stores/ScheduleItemStore/GroupScheduleItemStore';
+
 
 import EditMeetingForm from './EditMeetingForm';
 import Minute from './Minute';
@@ -19,14 +24,83 @@ momentLocalizer();
 
 @observer
 class MeetingCard extends Component {
-
-	constructor(){
-		super()
-		this.state = {
-			openMinuteForm: false,
-			showEditForm: false
-		}
+	state = {
+		openEditForm: false,
+		edittedTitle: '',
+		edittedDescription: '',
+		edittedLocation: '',
+		edittedStart: null,
+		edittedEnd: null,
+		openMinuteForm: false,
+		showEditForm: false,
 	}
+
+	componentWillMount() {
+		let { title, description, startDate, endDate, location, createdBy, type, id } = this.props.meeting;
+		console.log('LOL startDate', startDate)
+		this.setState({
+      edittedTitle: title,
+      edittedDescription: description,
+      edittedLocation: location,
+      edittedStart: new Date(startDate),
+      edittedEnd: new Date(endDate),
+    });
+  }
+  getActions(type, handleCloseDialog, eventId) {
+    if (this.state.openEditForm) {
+      const actions = [<FlatButton label="Cancel" primary onClick={() => this.handleCancelEdit()} />];
+      actions.push(<FlatButton label="Save" primary onClick={() => this.handleSaveEdit(eventId)} />);
+      return actions;
+    }
+    const actions = [<FlatButton label="Close" primary onClick={handleCloseDialog} />];
+    if (type === 'personal') {
+      actions.push(<FlatButton label="Remove" primary onClick={() => this.handleRemoveScheduleItem(eventId, handleCloseDialog)} />);
+      actions.push(<FlatButton label="Edit" primary onClick={() => this.setState({ openEditForm: true })} />);
+    }
+    return actions;
+  }
+
+  handleCancelEdit() {
+		let { title, description, startDate, endDate, location, createdBy, type, id } = this.props.meeting;
+    this.setState({
+      edittedTitle: title,
+      edittedDescription: description,
+      edittedLocation: location,
+      edittedStart: startDate,
+      edittedEnd: endDate,
+      openEditForm: false,
+    });
+  }
+
+  handleSaveEdit(eventId) {
+    const {
+      edittedTitle, edittedDescription, edittedStart, edittedEnd, edittedLocation,
+    } = this.state;
+    GroupScheduleItemStore.updateScheduleItem(
+        eventId, edittedTitle, edittedDescription,
+        edittedStart, edittedEnd, edittedLocation,
+      );
+    this.setState({ openEditForm: false });
+  }
+
+  handleRemoveScheduleItem(eventId, handleCloseDialog) {
+    swal({
+      title: 'Are you sure?',
+      text: 'You will not be able to recover this item!',
+      icon: 'warning',
+      buttons: true,
+      dangerMode: true,
+    })
+    .then((willDelete) => {
+      if (willDelete) {
+        ScheduleItemStore.removeScheduleItem(eventId);
+        handleCloseDialog();
+      }
+    });
+  }
+
+
+
 
 	removeMeeting(){
 		var meetingId = this.props.meeting.id;
@@ -41,9 +115,8 @@ class MeetingCard extends Component {
 		})
 		.then((willDelete) => {
 		  if (willDelete) {
-  			MeetingStore.removeMeeting(meetingId, groupId);
-		    swal("Poof! The item has been deleted!", {icon: "success"});
-		  } 
+  			GroupScheduleItemStore.removeScheduleItem(meetingId, groupId);
+		  }
 		});
 
 	}
@@ -66,9 +139,87 @@ class MeetingCard extends Component {
 		this.setState({openMinuteForm: false})
 	}
 
+	renderEditMeetingDialog() {
+		let { title, description, startDate, endDate, createdBy, itemType, id } = this.props.meeting;
+
+	return (
+		<Dialog
+        actions={this.getActions(itemType, this.handleCloseDialog, id)}
+        modal={false}
+        open={this.state.openEditForm}
+        onRequestClose={this.handleCloseDialog}
+      >
+			<div>
+					<Row className="calendarDateFormField">
+						<Col md={6}>
+							<ControlLabel>From</ControlLabel>
+							<DateTimePicker
+								defaultValue={this.state.edittedStart}
+								onChange={newStart => this.setState({ edittedStart: newStart })}
+							/>
+						</Col>
+						<Col md={6}>
+							<ControlLabel>To</ControlLabel>
+							<DateTimePicker
+								defaultValue={this.state.edittedEnd}
+								onChange={newEnd => this.setState({ edittedEnd: newEnd })}
+							/>
+						</Col>
+					</Row>
+					<Row className="calendarFormField">
+						<Col md={12}>
+								<ControlLabel>Location</ControlLabel>
+								<Autosuggest
+									value={this.state.edittedLocation}
+									datalist={JSON.parse(localStorage.getItem('NUSVenues'))}
+									placeholder="Enter schedule location"
+									onChange={venue => this.setState({ edittedLocation: venue })}
+								/>
+						</Col>
+					</Row>
+					<Row className="calendarFormField">
+						<Col md={12}>
+								<ControlLabel>Title</ControlLabel>
+								<FormControl
+									type="text"
+									value={this.state.edittedTitle}
+									placeholder="Enter schedule title"
+									onChange={e => this.setState({ edittedTitle: e.target.value })}
+								/>
+						</Col>
+					</Row>
+					<Row className="calendarFormField">
+						<Col md={12}>
+								<ControlLabel>Description</ControlLabel>
+								<FormControl
+									type="text"
+									value={this.state.edittedDescription}
+									placeholder="Enter schedule description"
+									onChange={e => this.setState({ edittedDescription: e.target.value })}
+								/>
+						</Col>
+					</Row>
+			</div>
+		</Dialog>
+	);
+}
+
+handleCloseCalendarForm() {
+	let { title, description, location, startDate, endDate, createdBy, type, id } = this.props.meeting;
+
+	this.setState({
+		edittedTitle: title,
+		edittedDescription: description,
+		edittedLocation: location,
+		edittedStart: startDate,
+		edittedEnd: endDate,
+		openEditForm: false,
+	});
+}
+
 	render(){
 		console.log("meeting in meeting card", this.props.meeting)
-		let { title, description, startDate, endDate, createdBy } = this.props.meeting;
+		let { title, description, startDate, endDate, createdBy, type, id } = this.props.meeting;
       	const start = moment(startDate).format("h:mm a");
         const end = moment(endDate).format("h:mm a");
         const date = moment(startDate).format("dddd, Do MMMM");
@@ -82,13 +233,14 @@ class MeetingCard extends Component {
 			    </CardText>
 			    <CardActions>
 			    	<FlatButton label="View Minutes" onClick={this.openMinuteModal.bind(this)}/>
-			      	<FlatButton label="Edit Meeting" onClick={this.openEditForm.bind(this)}/>
+			      	<FlatButton label="Edit Meeting" onClick={() => this.setState({ openEditForm: true })}/>
 			      	<FlatButton label="Remove Meeting" onClick={this.removeMeeting.bind(this)}/>
 			    </CardActions>
 			  </Card>
 			  {
-			  	this.state.showEditForm ? <EditMeetingForm meeting={this.props.meeting} closeEditForm={this.closeEditForm.bind(this)}/>: <span></span>
+			  	// this.state.showEditForm ? <EditMeetingForm meeting={this.props.meeting} closeEditForm={this.closeEditForm.bind(this)}/>: <span></span>
 			  }
+				{ this.renderEditMeetingDialog() }
 
 
 			  	<Modal show={this.state.openMinuteForm} onHide={this.handleClose.bind(this)}>

@@ -27,7 +27,7 @@ export default class MyScheduleScene extends Component {
           <Tabs>
             <Tab label="Calendar" >
               <div>
-                <MyCalendar step={30} />
+                <MyCalendar step={60} />
               </div>
             </Tab>
             <Tab label="Weekly Chart" >

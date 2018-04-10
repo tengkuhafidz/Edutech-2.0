@@ -10,6 +10,73 @@ const retrieveCookie = (name) => {
   return false;
 };
 
+const formatMergedCalendarEvents = (scheduleItems, groupId) => {
+  console.log('formatMergedCalendarEvents', scheduleItems);
+  let formattedEvents = [];
+  if (scheduleItems && scheduleItems.length > 0) {
+    for (let i = 0; i < scheduleItems.length; i += 1) {
+      let eventOwners = scheduleItems[i].assignedTo.map(owner => owner.username);
+      let color = TIMETABLE_ITEM_COLOR;
+      let description = null;
+      if (scheduleItems[i].groupId === groupId) {
+        description = scheduleItems[i].description;
+        switch (scheduleItems[i].itemType) {
+          case 'meeting':
+            eventOwners = [scheduleItems[i].title];
+            color = MEETING_ITEM_COLOR;
+            break;
+          case 'task':
+            eventOwners = [scheduleItems[i].title];
+            color = TASK_ITEM_COLOR;
+            break;
+          default:
+            color = TIMETABLE_ITEM_COLOR;
+        }
+      }
+      formattedEvents = formattedEvents.concat({
+        id: scheduleItems[i].id,
+        title: eventOwners.join(', '),
+        allDay: false,
+        start: new Date(scheduleItems[i].startDate),
+        end: new Date(scheduleItems[i].endDate),
+        description,
+        location: scheduleItems[i].location,
+        type: scheduleItems[i].itemType,
+        createdBy: scheduleItems[i].createdBy,
+        hexColor: color,
+        groupId: scheduleItems[i].groupId,
+      });
+    }
+  }
+  return formattedEvents;
+  // var scheduleItemArr = [];
+  // if(membersScheduleItems && membersScheduleItems.length>0){
+  //   for(var i=0 ; i<membersScheduleItems.length ; i++){
+  //     var namesArr =[];
+  //     if(membersScheduleItems[i].itemType === "timetable"){
+  //       for(var j=0 ; j<membersScheduleItems[i].assignedTo.length ; j++){
+  //         namesArr.push(membersScheduleItems[i].assignedTo[j].username);
+  //       }
+  //       scheduleItemArr = scheduleItemArr.concat({
+  //         id: membersScheduleItems[i].id,
+  //         title: namesArr.join(", "),
+  //         allDay: false,
+  //         start: new Date(membersScheduleItems[i].startDate),
+  //         end: new Date(membersScheduleItems[i].endDate),
+  //         description: membersScheduleItems[i].description,
+  //         location: membersScheduleItems[i].location,
+  //         type: membersScheduleItems[i].itemType,
+  //         createdBy: membersScheduleItems[i].createdBy
+  //       })
+  //     }
+  //   }
+  // }
+  // console.log('membersScheduleItems', membersScheduleItems);
+  // console.log('scheduleItemArr', scheduleItemArr);
+  // return scheduleItemArr;
+
+}
+
 const setScheduleItemsColor = (scheduleItems) => {
   let scheduleItemsWithColor = [];
   if (scheduleItems && scheduleItems.length > 0) {
@@ -68,4 +135,4 @@ const getScheduleTypeColor = (type) => {
   }
 };
 
-export { retrieveCookie, setScheduleItemsColor, getScheduleTypeColor };
+export { retrieveCookie, formatMergedCalendarEvents, setScheduleItemsColor, getScheduleTypeColor };

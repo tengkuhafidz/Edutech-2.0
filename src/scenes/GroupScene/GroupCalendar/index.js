@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Paper, RaisedButton, Toggle } from 'material-ui';
+import { Paper, FlatButton, Toggle, IconButton, Dialog } from 'material-ui';
 import { observer } from 'mobx-react';
 import { toJS } from 'mobx';
 import BigCalendar from 'react-big-calendar';
@@ -9,10 +9,12 @@ import { Link } from 'react-router-dom';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import 'react-widgets/dist/css/react-widgets.css';
 
+import GroupScheduleItemsChart from '../GroupScheduleItemsChart';
 import AddScheduleItemDialog from './AddScheduleItemDialog';
 import SingleScheduleItemDialog from './SingleScheduleItemDialog';
-import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
-import { setScheduleItemsColor } from '../../../utils/helpers';
+import GroupStore from '../../../stores/GroupStore/GroupStore';
+import GroupScheduleItemStore from '../../../stores/ScheduleItemStore/GroupScheduleItemStore';
+import { formatMergedCalendarEvents, setScheduleItemsColor } from '../../../utils/helpers';
 import './style.css';
 
 moment.locale('en');
@@ -20,7 +22,7 @@ BigCalendar.momentLocalizer(moment);
 momentLocalizer();
 
 @observer
-class MyCalendar extends Component {
+class GroupCalendar extends Component {
   state = {
     openViewScheduleItemDialog: false,
     selectedEvent: null,
@@ -30,7 +32,8 @@ class MyCalendar extends Component {
     scheduleTitle: '',
     scheduleDescription: '',
     scheduleLocation: '',
-    timetableOnly: false,
+    groupItemsOnly: false,
+    openChartDialog: false,
   }
 
   handleAddScheduleItem() {
@@ -38,10 +41,10 @@ class MyCalendar extends Component {
       scheduleTitle, scheduleDescription, scheduleStart, scheduleEnd, scheduleLocation,
     } = this.state;
     const assignedTo = [];
-    const itemType = 'personal';
+    const itemType = 'meeting';
     const moduleCode = null;
-    const groupId = null;
-    ScheduleItemStore.addScheduleItem(
+    const groupId = GroupStore.selectedGroup.id;
+    GroupScheduleItemStore.addScheduleItem(
         scheduleTitle, scheduleDescription, scheduleStart,
         scheduleEnd, scheduleLocation, assignedTo, itemType, moduleCode, groupId,
       );
@@ -75,6 +78,7 @@ class MyCalendar extends Component {
   }
 
   handleSelectEvent(event) {
+    console.log('event', event, 'event grou id', event.groupId)
     this.setState({
       selectedEvent: event,
       openViewScheduleItemDialog: true,
@@ -114,15 +118,33 @@ class MyCalendar extends Component {
     return '';
   }
 
-  renderExpandViewButton() {
-    if (this.props.expandViewButton) {
+  renderChartDialog() {
+    const actions = [
+     <FlatButton
+       label="Close"
+       primary
+       onClick={() => this.setState({ openChartDialog: false })}
+     />,
+   ];
+    return (
+      <Dialog
+        actions={actions}
+        modal
+        open={this.state.openChartDialog}
+      >
+        <GroupScheduleItemsChart />
+      </Dialog>
+    );
+  }
+
+  renderViewChartButton() {
+    if (this.props.viewChart) {
       return (
-        <RaisedButton
-          label="Expand Schedule View"
-          labelPosition="before"
-          icon={<i className="fas fa-expand" />}
-          fullWidth
-          containerElement={<Link to="myschedule" />} // eslint-disable-line
+        <FlatButton
+          secondary
+          label="View Chart"
+          icon={<i className="fas fa-chart-bar" />}
+          onClick={() => this.setState({ openChartDialog: true })}
         />
       );
     }
@@ -130,28 +152,31 @@ class MyCalendar extends Component {
   }
 
 	render() {
-    const scheduleItems = this.state.timetableOnly ?
-      ScheduleItemStore.timetableItems : ScheduleItemStore.scheduleItems;
+    const scheduleItems = this.state.groupItemsOnly ?
+      GroupScheduleItemStore.groupItems : GroupScheduleItemStore.scheduleItems;
     if (!scheduleItems || scheduleItems.length < 1) {
       return '';
     }
-    const events = setScheduleItemsColor(scheduleItems);
-		return (
-      <Paper className="myCalendar">
-        <h3> My Schedule </h3>
-          <Toggle
-            label="Timetable only"
-            labelStyle={{ fontWeight: 'normal' }}
-            style={{ marginTop: '-25px', marginRight: '10px' }}
-            className="pull-right text-right"
-            onToggle={() => this.setState({ timetableOnly: !this.state.timetableOnly })}
-          />
+    const events = formatMergedCalendarEvents(scheduleItems, GroupStore.selectedGroup.id);
+    return (
+      <div className="myCalendar">
+        <h3>
+          {GroupStore.selectedGroup.title} Schedule
+        </h3>
+        {this.renderViewChartButton()}
+        <Toggle
+          label="Group events only"
+          labelStyle={{ fontWeight: 'normal' }}
+          style={{ marginRight: '10px' }}
+          className="pull-right text-right"
+          onToggle={() => this.setState({ groupItemsOnly: !this.state.groupItemsOnly })}
+        />
         <div className="calendarContainter">
           <BigCalendar
             events={events}
             views={['month', 'week', 'day']}
             defaultView={localStorage.getItem('defaultView') || 'week'}
-            step={this.props.step}
+            step={60}
             scrollToTime={new Date()}
             defaultDate={new Date(moment().startOf('day').toString())}
             length={7}
@@ -165,10 +190,10 @@ class MyCalendar extends Component {
         </div>
         { this.renderAddScheduleItemDialog() }
         { this.renderViewScheduleItemDialog() }
-        { this.renderExpandViewButton() }
-      </Paper>
+        { this.renderChartDialog() }
+      </div>
 		);
 	}
 }
 
-export default MyCalendar;
+export default GroupCalendar;

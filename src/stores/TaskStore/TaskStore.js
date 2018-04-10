@@ -5,6 +5,7 @@ import moment from 'moment';
 import Task from './Task';
 import { findUserTasks, createTask, deleteTask, editTask, updateTaskProgress } from '../../services/taskApi';
 import UtilStore from '../UtilStore/UtilStore';
+import ScheduleItemStore from '../ScheduleItemStore/ScheduleItemStore';
 
 class TaskStore {
     @observable tasks = [];
@@ -55,6 +56,7 @@ class TaskStore {
         const index = this.tasks.findIndex(task => task.id === updatedTask.id);
         this.tasks[index] = updatedTask;
         UtilStore.openSnackbar('Task editted');
+        ScheduleItemStore.populateScheduleItems(localStorage.getItem('username'));
       } catch (e) {
         swal('Error', 'Error editing task', 'error');
       }

@@ -1,8 +1,12 @@
-.taskItem {
-  padding: 10px 10px !important;
-  margin-top: 5px;
+.editTaskItem {
+  padding: 15px 10px 40px 10px;
+  margin: 10px 5px;
 }
 
-.taskItem:hover {
-  box-shadow: 6px 6px 6px 6px rgba(0.1,0.1,0.1,0.1) !important;
+.inputField {
+  margin: 5px 0;
+}
+
+.editActionButtons {
+  margin-top: 5px;
 }

@@ -9,6 +9,7 @@ import { observer } from 'mobx-react';
 
 import { getScheduleTypeColor } from '../../../../utils/helpers';
 import ScheduleItemStore from '../../../../stores/ScheduleItemStore/ScheduleItemStore';
+import GroupStore from '../../../../stores/GroupStore/GroupStore';
 
 @observer
 export default class ViewScheduleItemDialog extends Component {
@@ -30,14 +31,15 @@ export default class ViewScheduleItemDialog extends Component {
       edittedEnd: end,
     });
   }
-  getActions(type, handleCloseDialog, eventId) {
+  getActions(type, handleCloseDialog, eventId, groupId) {
     if (this.state.openEditForm) {
       const actions = [<FlatButton label="Cancel" primary onClick={() => this.handleCancelEdit()} />];
       actions.push(<FlatButton label="Save" primary onClick={() => this.handleSaveEdit(eventId)} />);
       return actions;
     }
     const actions = [<FlatButton label="Close" primary onClick={handleCloseDialog} />];
-    if (type === 'personal') {
+    console.log('type', type, 'groupId', groupId, 'GroupStore.selectedGroup.id', GroupStore.selectedGroup.id)
+    if (type === 'meeting' && groupId === GroupStore.selectedGroup.id) {
       actions.push(<FlatButton label="Remove" primary onClick={() => this.handleRemoveScheduleItem(eventId, handleCloseDialog)} />);
       actions.push(<FlatButton label="Edit" primary onClick={() => this.setState({ openEditForm: true })} />);
     }
@@ -102,6 +104,7 @@ export default class ViewScheduleItemDialog extends Component {
     if (openEditForm) {
       return (
         <div>
+        <div>
             <Row className="calendarDateFormField">
               <Col md={6}>
                 <ControlLabel>From</ControlLabel>
@@ -152,6 +155,7 @@ export default class ViewScheduleItemDialog extends Component {
               </Col>
             </Row>
         </div>
+        </div>
       );
     }
     return (
@@ -164,11 +168,11 @@ export default class ViewScheduleItemDialog extends Component {
   }
   render() {
     const { selectedEvent, dialogState, handleCloseDialog } = this.props;
-    const { id, type } = selectedEvent; // eslint-disable-line
+    const { id, type, groupId } = selectedEvent; // eslint-disable-line
 
     return (
       <Dialog
-        actions={this.getActions(type, handleCloseDialog, id)}
+        actions={this.getActions(type, handleCloseDialog, id, groupId)}
         modal={false}
         open={dialogState}
         onRequestClose={handleCloseDialog}

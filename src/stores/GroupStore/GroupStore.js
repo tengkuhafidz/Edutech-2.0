@@ -20,6 +20,11 @@ class GroupStore {
 		this.selectedGroup = this.groupList.find(group => group.id === parseInt(groupId, 10));
 		return this.selectedGroup;
 	}
+
+  @action
+  setSelectedGroup(groupId) {
+    this.selectedGroup = this.groupList.find(group => group.id === parseInt(groupId, 10));
+  }
 }
 
 export default new GroupStore();
