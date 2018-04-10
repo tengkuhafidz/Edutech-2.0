@@ -30,17 +30,6 @@ class AssignmentStore {
 			} catch (e) {
 				swal('Error!','Unable to create individual assignment', 'error')
 			}
-			//
-			// axios.post('/assignment/individual', dataSet)
-			// .then((res) => {
-			// 	console.log(res.data);
-			// 	GroupStore.getCreatedGroups(res.data);
-			// 	swal('Success!', 'Group assignment created successfully.', 'success')
-			// 	this.populateModuleAssignments(moduleCode);
-			// })
-			// .catch((err) => {
-			// 	console.log(err);
-			// })
 		} else {
 			let numOfGroups = numberOfStudents / groupSize;
 			numOfGroups = _.ceil(numOfGroups);
@@ -52,16 +41,6 @@ class AssignmentStore {
 			} catch (e) {
 				swal('Error!', 'Unable to create group assignment', 'error')
 			}
-			// axios.post(`/assignment/group/${numOfGroups}/${groupSize}`, dataSet)
-			// .then((res) => {
-			// 	console.log(res.data);
-			// 	GroupStore.getCreatedGroups(res.data.groups);
-			// 	swal("Success!", "Group assignment created successfully.", "success");
-			// 	this.populateModuleAssignments(moduleCode);
-			// })
-			// .catch((err) => {
-			// 	console.log(err);
-			// })
 		}
 	}
 
@@ -90,17 +69,13 @@ class AssignmentStore {
 	}
 
 	@action
-	joinAssignmentGroup(username, groupId, assignmentId) {
+	joinAssignmentGroup(username, groupId, assignmentId, moduleCode) {
 		axios.put(`/group/join/${groupId}/${username}`)
 		.then((res) => {
 			const joinedGroup = res.data;
 			console.log("res data: ", joinedGroup)
-			this.populateModuleAssignments("IS4103");
-
-			// const assignmentIndex = _.findIndex(this.assignmentList, {id: assignmentId});
-			// const groupIndex = _.findIndex(this.assignmentList[assignmentIndex].groups, {id: groupId});
-			// this.assignmentList[assignmentIndex].groups.splice(groupIndex, 1, joinedGroup);
-			// console.log("modified assignmentList", toJS(this.assignmentList))
+			this.populateModuleAssignments(moduleCode);
+			GroupStore.populateGroupList(username);
 		})
 		.catch((err) => {
 			console.log(err)
@@ -108,17 +83,13 @@ class AssignmentStore {
 	}
 
 	@action
-	leaveAssignmentGroup(username, groupId, assignmentId) {
+	leaveAssignmentGroup(username, groupId, assignmentId, moduleCode) {
 		axios.put(`/group/leave/${groupId}/${username}`)
 		.then((res) => {
 			const leaveGroup = res.data;
-			console.log("res data: ", leaveGroup)
-			this.populateModuleAssignments("IS4103")
-
-			// const assignmentIndex = _.findIndex(this.assignmentList, {id: assignmentId});
-			// const groupIndex = _.findIndex(this.assignmentList[assignmentIndex].groups, {id: groupId});
-			// this.assignmentList[assignmentIndex].groups.splice(groupIndex, 1, leaveGroup);
-			// console.log("modified assignmentList", toJS(this.assignmentList))
+			console.log("res data: ", leaveGroup);
+			this.populateModuleAssignments(moduleCode);
+			GroupStore.populateGroupList(username);
 		})
 		.catch((err) => {
 			console.log(err)

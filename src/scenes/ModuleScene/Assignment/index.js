@@ -24,16 +24,17 @@ class Assignment extends Component {
 		this.setState({ showAssignmentForm: !this.state.showAssignmentForm })
 	}
 
-	renderCreateButton(assignmentList) {
-	    return (
-	      <div>
-	        <Button bsStyle="primary" onClick={this.flipShowAssignmentFormState.bind(this)}>
+	renderCreateButton() {
+		const userType = localStorage.getItem('userType');
+		if (userType === 'instructor') {
+			return (
+	        <Button bsStyle="primary" onClick={() => this.flipShowAssignmentFormState()}>
 	          Create Assignment
 	          <Glyphicon glyph="plus" style={{marginLeft: '5px'}}/>
 	        </Button>
-					<AssignmentListView assignmentList={assignmentList}/>
-	      </div>
 	      )
+		}
+		return '';
 	 }
 
 
@@ -41,18 +42,20 @@ class Assignment extends Component {
 		const { selectedModule } = ModuleStore;
 		const assignmentList = toJS(AssignmentStore.assignmentList);
 
-		return(
+		return (
 			<div className="standardTopGap">
-				{
-					this.state.showAssignmentForm ?
-					<CreateAssignmentForm
-					  moduleCode={this.props.moduleCode}
-					  selectedModule={selectedModule}
-					  flipShowAssignmentFormState={this.flipShowAssignmentFormState.bind(this)}
-					/>
-					: this.renderCreateButton(assignmentList)
-				}
-
+				<div>
+					{
+						this.state.showAssignmentForm ?
+						<CreateAssignmentForm
+						  moduleCode={this.props.moduleCode}
+						  selectedModule={selectedModule}
+						  flipShowAssignmentFormState={() => this.flipShowAssignmentFormState()}
+						/>
+						: this.renderCreateButton()
+					}
+					<AssignmentListView assignmentList={assignmentList} />
+				</div>
 			</div>
 		)
 	}

@@ -24,6 +24,13 @@ class AssignmentListView extends Component {
 		  }
 		});
 	}
+	renderDeleteBtn(assignment) {
+		const userType = localStorage.getItem('userType')
+		if (userType === 'instructor') {
+			return (<Button bsStyle="warning" bsSize="small" className="pull-right" onClick={() => this.deleteAssignment(assignment.id)}>Delete</Button>)
+		}
+		return '';
+	}
 	renderAssignment(assignmentList) {
 		return assignmentList.map(assignment =>
 			(
@@ -34,7 +41,7 @@ class AssignmentListView extends Component {
 		      			({
 		      				(assignment.groups.length > 0) ? 'Group' : 'Individual'
 		      			})
-								<Button bsStyle="warning" bsSize="small" className="pull-right" onClick={() => this.deleteAssignment(assignment.id)}>Delete</Button>
+								{this.renderDeleteBtn(assignment)}
 		      		</Panel.Title>
 		    	</Panel.Heading>
 		    	<Panel.Body collapsible>
