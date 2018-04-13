@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Tabs, Tab, Paper } from 'material-ui';
+import { Tabs, Tab, Paper, FlatButton, List, ListItem, Avatar, Dialog, Subheader } from 'material-ui';
 import { Row, Col } from 'react-bootstrap';
 import { observer } from 'mobx-react';
 import { Animated } from 'react-animated-css';
@@ -13,6 +13,8 @@ import RightPanel from './RightPanel';
 import LessonStore from '../../stores/LessonStore/LessonStore';
 import ModuleStore from '../../stores/ModuleStore/ModuleStore';
 import AssignmentStore from '../../stores/ModuleStore/AssignmentStore';
+import {USER_IMAGE_PATH} from '../../utils/constants';
+
 
 import Feed from '../../components/Feed';
 
@@ -20,6 +22,7 @@ import Feed from '../../components/Feed';
 export default class ModuleScene extends Component {
   componentDidMount() {
     const { moduleCode } = this.props.match.params;
+    ModuleStore.setSelectedModule(moduleCode);
     LessonStore.getLessonsForModule(moduleCode);
     // GroupStore.populateModuleGroup(moduleCode);
     AssignmentStore.populateModuleAssignments(moduleCode);
@@ -27,6 +30,7 @@ export default class ModuleScene extends Component {
 
   componentWillReceiveProps(newProps) {
     const { moduleCode } = newProps.match.params;
+    ModuleStore.setSelectedModule(moduleCode);
     LessonStore.getLessonsForModule(moduleCode);
     AssignmentStore.populateModuleAssignments(moduleCode);
     // GroupStore.populateModuleGroup(moduleCode);
@@ -34,6 +38,7 @@ export default class ModuleScene extends Component {
   renderGroupingPage() {
     return localStorage.getItem('userType') === 'student' ? <GroupingStudent /> : <GroupingInstructor />;
   }
+
   render() {
     const { moduleCode } = this.props.match.params;
     let module = null;

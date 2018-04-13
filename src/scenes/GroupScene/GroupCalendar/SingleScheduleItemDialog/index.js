@@ -5,14 +5,11 @@ import { DateTimePicker } from 'react-widgets';
 import Autosuggest from 'react-bootstrap-autosuggest';
 import moment from 'moment';
 import swal from 'sweetalert';
-import FileSaver from 'file-saver';
 import { observer } from 'mobx-react';
-import axios from 'axios';
 
-
-import UtilStore from '../../../../stores/UtilStore/UtilStore';
 import { getScheduleTypeColor } from '../../../../utils/helpers';
 import ScheduleItemStore from '../../../../stores/ScheduleItemStore/ScheduleItemStore';
+import GroupStore from '../../../../stores/GroupStore/GroupStore';
 
 @observer
 export default class ViewScheduleItemDialog extends Component {
@@ -23,11 +20,9 @@ export default class ViewScheduleItemDialog extends Component {
     edittedLocation: '',
     edittedStart: null,
     edittedEnd: null,
-    files: null,
-    doneFetching: false,
   }
   componentWillMount() {
-    const { id, title, start, end, description, location, type } = this.props.selectedEvent; // eslint-disable-line
+    const { title, start, end, description, location } = this.props.selectedEvent; // eslint-disable-line
     this.setState({
       edittedTitle: title,
       edittedDescription: description,
@@ -35,53 +30,22 @@ export default class ViewScheduleItemDialog extends Component {
       edittedStart: start,
       edittedEnd: end,
     });
-
-    if (type === 'timetable') {
-      axios.get(`/lesson/allAttachments/${id}`)
-        .then((res) => {
-          this.setState({ files: res.data, doneFetching: true })
-          // console.log("lessonId and file", lessonId, this.state.files);
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-    }
   }
-  getActions(type, handleCloseDialog, eventId) {
+  getActions(type, handleCloseDialog, eventId, groupId) {
     if (this.state.openEditForm) {
       const actions = [<FlatButton label="Cancel" primary onClick={() => this.handleCancelEdit()} />];
       actions.push(<FlatButton label="Save" primary onClick={() => this.handleSaveEdit(eventId)} />);
       return actions;
     }
     const actions = [<FlatButton label="Close" primary onClick={handleCloseDialog} />];
-    if (type === 'personal') {
+    console.log('type', type, 'groupId', groupId, 'GroupStore.selectedGroup.id', GroupStore.selectedGroup.id)
+    if (type === 'meeting' && groupId === GroupStore.selectedGroup.id) {
       actions.push(<FlatButton label="Remove" primary onClick={() => this.handleRemoveScheduleItem(eventId, handleCloseDialog)} />);
       actions.push(<FlatButton label="Edit" primary onClick={() => this.setState({ openEditForm: true })} />);
     }
-    if (type === 'timetable') {
-      if (!this.state.doneFetching) {
-        actions.push(<span>Loading. . . </span>);
-      } else if (this.state.doneFetching && this.state.files && this.state.files.length > 0) {
-        actions.push(<FlatButton label="Download Files" info onClick={() => this.downloadFiles(eventId)} />);
-      }
-    }
-
     return actions;
   }
-  async downloadFiles(lessonId) {
-    try {
-      const files = await axios.get(`/lesson/downloadAllAttachments/${lessonId}`, { responseType: 'blob' });
-      const downloadedZip = files.data;
-      const { title, start } = this.props.selectedEvent;
-      const dateTimeFormat = moment(start).format('Do MMMM');
-      const zipFileName = title.concat("_" + dateTimeFormat + ".zip"); //eslint-disable-line
-      FileSaver.saveAs(downloadedZip, zipFileName);
-      UtilStore.openSnackbar(`Downloading ${zipFileName} . . .`)
-    } catch (e) {
-      swal('error!', 'error downloading file', 'error');
-    }
 
-  }
   handleCancelEdit() {
     const { title, start, end, description, location } = this.props.selectedEvent; // eslint-disable-line
     this.setState({
@@ -140,6 +104,7 @@ export default class ViewScheduleItemDialog extends Component {
     if (openEditForm) {
       return (
         <div>
+        <div>
             <Row className="calendarDateFormField">
               <Col md={6}>
                 <ControlLabel>From</ControlLabel>
@@ -190,6 +155,7 @@ export default class ViewScheduleItemDialog extends Component {
               </Col>
             </Row>
         </div>
+        </div>
       );
     }
     return (
@@ -202,11 +168,11 @@ export default class ViewScheduleItemDialog extends Component {
   }
   render() {
     const { selectedEvent, dialogState, handleCloseDialog } = this.props;
-    const { id, type } = selectedEvent; // eslint-disable-line
+    const { id, type, groupId } = selectedEvent; // eslint-disable-line
 
     return (
       <Dialog
-        actions={this.getActions(type, handleCloseDialog, id)}
+        actions={this.getActions(type, handleCloseDialog, id, groupId)}
         modal={false}
         open={dialogState}
         onRequestClose={handleCloseDialog}

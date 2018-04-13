@@ -105,6 +105,7 @@ export default class LeftBar extends Component {
   }
   renderOthersMenu() {
     const otherListItems = [
+      <ListItem primaryText="Edubox" key={1} onClick={() => window.location.replace('http://localhost:8080/EduTechWebApp-war/')} />,
       <ListItem primaryText="Logout" key={1} onClick={() => this.handleLogout()} />,
     ];
     return (

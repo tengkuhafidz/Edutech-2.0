@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Paper } from 'material-ui';
+import { Paper, RaisedButton } from 'material-ui';
 import { Tabs, Tab, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { observer } from 'mobx-react';
 import { DateTimePicker, DropdownList } from 'react-widgets';
@@ -12,8 +12,9 @@ import 'react-widgets/dist/css/react-widgets.css';
 import SingleGroupTask from './SingleGroupTask';
 import GroupTaskStore from '../../../stores/TaskStore/GroupTaskStore';
 import GroupStore from '../../../stores/GroupStore/GroupStore';
+import './styles.css';
 // create a viewModel singleton
-const groupTaskStore = new GroupTaskStore();
+// const GroupTaskStore = new GroupTaskStore();
 // setup react-widgets moment localisation
 moment.locale('en');
 momentLocalizer();
@@ -24,45 +25,7 @@ export default class GroupTask extends Component {
     taskTitle: null,
     taskDate: null,
     taskAssignee: null,
-  }
-
-  componentDidMount() {
-    groupTaskStore.groupId = this.props.groupId;
-    groupTaskStore.fetchGroupTasks(groupTaskStore.groupId);
-  }
-
-  addTask(e) {
-    if (e.target.value && e.which === 13) {
-      groupTaskStore.addTask(e.target.value);
-      e.target.value = '';
-    }
-  }
-
-  handleEnterPress(e) {
-    if (e.which === 13) {
-      this.addGroupTask();
-    }
-  }
-
-  addGroupTask() {
-    if (this.state.taskTitle) {
-      // console.log("PRESSED")
-
-      groupTaskStore.addGroupTask(
-        this.state.taskTitle,
-        moment(this.state.taskDate).format('YYYY-MM-DDTHH:mm:ss'),
-        this.state.taskAssignee,
-        this.props.groupId,
-      );
-
-      this.setState({
-        taskTitle: '',
-        taskAssignee: null,
-        taskDate: null,
-      });
-    } else {
-      swal("Ooops!", "Task name cannot be empty", "error");
-    }
+    activeTabKey: 2,
   }
 
   getGroupMemberNames() {
@@ -72,14 +35,60 @@ export default class GroupTask extends Component {
     return membersNames;
   }
 
+  addGroupTask() {
+    if (this.state.taskTitle) {
+      GroupTaskStore.addGroupTask(
+        this.state.taskTitle,
+        this.state.taskDate,
+        this.state.taskAssignee,
+        this.props.groupId,
+      );
+      this.setState({
+        taskTitle: '',
+        taskAssignee: null,
+        taskDate: null,
+      });
+    } else {
+      swal('Ooops!', 'Task name cannot be empty', 'error');
+    }
+  }
+
+  renderBacklogGroupTasks() {
+    if (!GroupTaskStore.backlogTasks || GroupTaskStore.backlogTasks.length < 1) {
+      return (
+        <div>
+          <p className="noTasks lead"> No To Dos in this group currently. </p>
+        </div>
+      );
+    }
+    return GroupTaskStore.backlogTasks.map(task =>
+      <SingleGroupTask key={task.id} task={task} groupTaskStore={GroupTaskStore} groupMemberNames={this.getGroupMemberNames()} />);
+  }
+
   renderCurrentGroupTasks() {
-    return groupTaskStore.currentTasks.map(task =>
-      <SingleGroupTask key={task.id} task={task} groupTaskStore={groupTaskStore} groupMemberNames={this.getGroupMemberNames()} />);
+    if (!GroupTaskStore.currentTasks || GroupTaskStore.currentTasks.length < 1) {
+      return (
+        <div>
+          <p className="noTasks lead"> No current tasks in this group.</p>
+          <RaisedButton primary label="Add Task from To Do" onClick={() => this.setState({ activeTabKey: 1 })} />
+        </div>
+      );
+    }
+    return GroupTaskStore.currentTasks.map(task =>
+      <SingleGroupTask key={task.id} task={task} groupTaskStore={GroupTaskStore} groupMemberNames={this.getGroupMemberNames()} />);
   }
 
   renderCompletedGroupTasks() {
-    return groupTaskStore.completedTasks.map(task =>
-      <SingleGroupTask key={task.id} task={task} groupTaskStore={groupTaskStore} />);
+    if (!GroupTaskStore.completedTasks || GroupTaskStore.completedTasks.length < 1) {
+      return (
+        <div>
+          <p className="noTasks lead"> Time to get some things done.</p>
+          <RaisedButton primary label="Work on Current Tasks" onClick={() => this.setState({ activeTabKey: 2 })} />
+        </div>
+      );
+    }
+    return GroupTaskStore.completedTasks.map(task =>
+      <SingleGroupTask key={task.id} task={task} groupTaskStore={GroupTaskStore} />);
   }
 
   renderTaskInput() {
@@ -90,9 +99,9 @@ export default class GroupTask extends Component {
             <FormControl
               type="text"
               placeholder="Add group task"
-              onKeyPress={e => this.handleEnterPress(e)}
               value={this.state.taskTitle}
               onChange={e => this.setState({ taskTitle: e.target.value })}
+              onFocus={() => this.setState({ activeTabKey: 1 })}
             />
           </Col>
         </Row>
@@ -101,6 +110,7 @@ export default class GroupTask extends Component {
             <DropdownList
               data={this.getGroupMemberNames()}
               placeholder="Assign a member"
+              style={{ textAlign: 'left' }}
               onChange={assignedTo => this.setState({ taskAssignee: assignedTo })}
               value={this.state.taskAssignee}
             />
@@ -128,24 +138,27 @@ export default class GroupTask extends Component {
 
   render() {
     return (
-      <Paper className="standardTopGap paperDefault">
+      <div className="MyCurrentTasks">
+        <h3> {GroupStore.selectedGroup.title} Tasks </h3>
         { this.renderTaskInput() }
-        <div className="pull-right standardTopGap">
-          <Button bsStyle="link" onClick={() => groupTaskStore.fetchGroupTasks(this.props.groupId)}>Refresh</Button>
-        </div>
-        <Tabs defaultActiveKey={1} className="standardTopGap">
-          <Tab eventKey={1} title="Current">
-            <div className="taskList">
-              { this.renderCurrentGroupTasks() }
+        <Tabs activeKey={this.state.activeTabKey} onSelect={key => this.setState({ activeTabKey: key })} id="myTasksTab">
+          <Tab eventKey={1} title="To Do">
+            <div className="taskItems">
+              {this.renderBacklogGroupTasks()}
             </div>
           </Tab>
-          <Tab eventKey={2} title="Completed">
-            <div className="taskList">
-              { this.renderCompletedGroupTasks() }
+          <Tab eventKey={2} title="Doing">
+            <div className="taskItems">
+              {this.renderCurrentGroupTasks()}
+            </div>
+          </Tab>
+          <Tab eventKey={3} title="Done">
+            <div className="taskItems">
+              {this.renderCompletedGroupTasks()}
             </div>
           </Tab>
         </Tabs>
-      </Paper>
+      </div>
     );
   }
 }

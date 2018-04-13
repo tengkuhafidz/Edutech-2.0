@@ -24,3 +24,15 @@
 .cardContainer {
     padding: 2px 16px;
 }
+
+
+.sideTopSection .fa-edit {
+  display: inline;
+
+}
+
+.sideTopSection:hover .fa-edit {
+  display: inline;
+  margin-left: 5px;
+  color: #AAA;
+}

@@ -10,7 +10,10 @@ const deleteScheduleItem = async id => axios.delete(`/scheduleitem/${id}`);
 
 const editScheduleItem = async (id, scheduleItem) => axios.put(`/scheduleitem/${id}`, scheduleItem);
 
+const findGroupScheduleItems = async groupId => axios.get(`/scheduleitem/members/${groupId}`);
+
+
 export {
   findSemester, findUserScheduleItems, createScheduleItem,
-  deleteScheduleItem, editScheduleItem,
+  deleteScheduleItem, editScheduleItem, findGroupScheduleItems,
  };

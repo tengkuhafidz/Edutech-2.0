@@ -1,34 +1,57 @@
 .taskItem {
-  padding: 10px 10px !important;
-  margin-top: 5px;
+  padding: 20px 10px;
+  margin: 10px 5px;
+  text-align: left;
+  position: relative;
 }
 
-.taskItem:hover {
-  box-shadow: 6px 6px 6px 6px rgba(0.1,0.1,0.1,0.1) !important;
+.taskTitle {
+  font-size: 1.1em;
 }
 
-.taskItem > span > i{
+.taskActions {
+  margin: -5px -10px;
+  text-align: center;
+}
+
+.backlogButton {
+  font-size: 0.7em;
+  text-align: center;
+  color: grey;
+  display: none !important;
+}
+
+.taskTitle i {
   visibility: hidden !important;
   color: #AAA;
 }
 
-.taskItem:hover > span > i{
+.taskItem:hover span i {
   visibility: visible !important;
 }
 
-.taskActions {
-  display:inline-block;
+.taskItem:hover .taskTitle {
+  font-size: 1.2em;
 }
 
-.taskActions {
-  display:inline-block;
+.taskItem:hover .taskActions .backlogButton {
+  display: inline !important;
+}
+
+.completedTaskItem {
+  padding: 10px 10px;
+  margin: 10px 5px;
+  font-size: 0.9em;
+  color: #AAA !important;
+  text-align: left;
+}
+
+.completedTaskTitle i {
+  visibility: hidden !important;
+  color: #AAA;
 }
 
 .secondaryTaskInfo {
   color: #AAA;
   font-size: 0.8em;
-}
-
-.verifiedSignature {
-  text-decoration: none !important;
 }

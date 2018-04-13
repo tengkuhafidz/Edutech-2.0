@@ -13,9 +13,11 @@ import 'react-widgets/dist/css/react-widgets.css';
 
 import MeetingCard from './MeetingCard';
 import MergeCalendar from './MergeCalendar';
+import GroupScheduleItemStore from '../../../stores/ScheduleItemStore/GroupScheduleItemStore';
 import MeetingStore from '../../../stores/MeetingStore/MeetingStore';
 import GroupStore from '../../../stores/GroupStore/GroupStore';
 import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
+import GroupCalendar from '../GroupCalendar';
 
 moment.locale('en');
 momentLocalizer();
@@ -35,10 +37,6 @@ class GroupMeeting extends Component{
         endTime: new Date(),
         showMeetingForm: false
       }
-  }
-
-  componentDidMount() {
-    ScheduleItemStore.populateMergedScheduleItemsForGroup(this.props.groupId);
   }
 
   checkSelectedDateValid(startTime , endTime){
@@ -92,69 +90,12 @@ class GroupMeeting extends Component{
 
   renderMeetingInput() {
     return (
-      <div className="paperDefault">
+      <Paper className="paperDefault">
           <div className="text-right" >
               <i className="fas fa-times fa-1x btnHover" onClick={this.closeMeetingForm.bind(this)}></i>
             </div>
-          <MergeCalendar groupId={this.props.groupId}/>
-          <div className="form-group row mt-1">
-            <label htmlFor="eventName" className="col-2 col-form-label">Meeting Title:</label>
-            <div className="col-8">
-              <input className="form-control" type="text" id="eventName" ref="name"
-                onChange={(e)=>this.setState({title: e.target.value})}
-              />
-            </div>
-          </div>
-
-          <div className="form-group row mt-1">
-            <label htmlFor="location" className="col-2 col-form-label">Location:</label>
-            <div className="col-8">
-              <input className="form-control" type="text" id="location" ref="location"
-              onChange={(e)=>this.setState({location: e.target.value})}
-              />
-            </div>
-          </div>
-
-          <div className="form-group row mt-1">
-            <label htmlFor="comment">Description:</label>
-            <textarea className="form-control" rows="5" id="comment" ref="description"
-            onChange={(e)=>this.setState({description: e.target.value})}
-            >
-            </textarea>
-          </div>
-
-        <Row className="smallTopGap">
-          <Col md={6}>
-            <DateTimePicker
-              min={new Date()}
-              placeholder="Set Start Time"
-              step={30}
-              onChange={value => this.setState({ startTime: new Date(value) })}
-              value={new Date(this.state.startTime)}
-            />
-          </Col>
-          <Col md={6}>
-            <DateTimePicker
-              min={new Date()}
-              placeholder="Set End Time"
-              step={30}
-              onChange={value => this.setState({ endTime:  new Date(value) })}
-              value={new Date(this.state.endTime)}
-            />
-          </Col>
-        </Row>
-        <Row className="smallTopGap">
-          <Checkbox inline onChange={this.handleChecked.bind(this)} checked={this.state.checked}>Override Clash of Members Schedules</Checkbox>
-        </Row>
-
-        <Row className="smallTopGap">
-          <Col md={12}>
-            <Button bsStyle="primary" className="pull-right" onClick={this.addMeetingItem.bind(this)}>
-              Create Meeting
-            </Button>
-          </Col>
-        </Row>
-      </div>
+          <GroupCalendar step={60} />
+      </Paper>
     );
   }
 
@@ -169,7 +110,8 @@ class GroupMeeting extends Component{
 
   renderCreateButton(){
     let meetingsObservable = MeetingStore.meetings;
-    var meetings= toJS(meetingsObservable);
+    var meetings = toJS(meetingsObservable);
+    const groupMeetings = GroupScheduleItemStore.meetingItems;
     console.log('meetings', meetings)
 
     return (
@@ -179,7 +121,7 @@ class GroupMeeting extends Component{
           <Glyphicon glyph="plus" style={{marginLeft: '5px'}}/>
         </Button>
         {
-            meetings.map((meeting, index) =>{
+            groupMeetings.map((meeting, index) =>{
 
               return (<MeetingCard key={meeting.id} meeting={meeting} groupId={this.props.groupId}/>);
             })

@@ -9,6 +9,7 @@ import axios from 'axios';
 import 'react-widgets/dist/css/react-widgets.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
+import GroupScheduleItemStore from '../../../stores/ScheduleItemStore/GroupScheduleItemStore';
 import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
 import MeetingStore from '../../../stores/MeetingStore/MeetingStore';
 import GroupStore from '../../../stores/GroupStore/GroupStore';
@@ -24,15 +25,11 @@ BigCalendar.momentLocalizer(moment);
 @observer
 class MergeCalendar extends Component {
 
-	constructor(props){
-		super(props);
-	}
-
 	componentDidMount() {
 		ScheduleItemStore.populateMergedScheduleItemsForGroup(this.props.groupId);
 	}
 
-	getEventArray(membersScheduleItems){
+	getEventArray(membersScheduleItems) {
 		var scheduleItemArr = [];
 		if(membersScheduleItems && membersScheduleItems.length>0){
 			for(var i=0 ; i<membersScheduleItems.length ; i++){
@@ -41,7 +38,6 @@ class MergeCalendar extends Component {
 					for(var j=0 ; j<membersScheduleItems[i].assignedTo.length ; j++){
 						namesArr.push(membersScheduleItems[i].assignedTo[j].username);
 					}
-
 					scheduleItemArr = scheduleItemArr.concat({
 						id: membersScheduleItems[i].id,
 						title: namesArr.join(", "),
@@ -56,12 +52,15 @@ class MergeCalendar extends Component {
 				}
 			}
 		}
+		console.log('membersScheduleItems', membersScheduleItems);
+		console.log('scheduleItemArr', scheduleItemArr);
 		return scheduleItemArr;
 	}
 
 
 	render(){
-		let membersScheduleItems = toJS(ScheduleItemStore.userGroupScheduleItems);
+		let membersScheduleItems = toJS(GroupScheduleItemStore.scheduleItems);
+		console.log('membersScheduleItems', membersScheduleItems)
 		let eventsArray = this.getEventArray(membersScheduleItems);
 		console.log('eventsArray', eventsArray)
 		return(
