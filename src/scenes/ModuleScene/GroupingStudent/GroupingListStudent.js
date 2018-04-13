@@ -63,7 +63,7 @@ class GroupingListStudent extends Component {
 			return (
 				<ButtonToolbar className="pull-right" style={{marginTop: '-20px'}}>
 					<Button bsStyle="warning" bsSize="small" onClick={this.leaveGroup.bind(this)}>
-				      Leave Group
+				      Leave
 				    </Button>
 			    </ButtonToolbar>
 				)
@@ -73,7 +73,7 @@ class GroupingListStudent extends Component {
 			return (
 				<ButtonToolbar className="pull-right" style={{marginTop: '-20px'}}>
 					<Button bsStyle="primary" bsSize="small" onClick={this.joinGroup.bind(this)}>
-				      Join Group
+				      Join
 				    </Button>
 			    </ButtonToolbar>
 			)

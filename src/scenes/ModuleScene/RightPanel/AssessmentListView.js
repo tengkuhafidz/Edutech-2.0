@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { observer } from 'mobx-react';
-import { toJS } from 'mobx';
 import moment from 'moment';
 import './styles.css';
 
@@ -26,7 +25,7 @@ class AssessmentListView extends Component {
 					<div className="cardContainer">
 						<h4><b>{title}</b></h4>
 						<p>
-							Time: {time}
+							{time}
 						</p>
 						<p>{location}</p>
 					</div>
@@ -40,7 +39,7 @@ class AssessmentListView extends Component {
 		// const allAssessmentList = toJS(ScheduleItemStore.assessmentItems);
 		// const assessmentList = allAssessmentList.filter(item => item.moduleCode === this.props.moduleCode);
 		const filteredKeyDates = ScheduleItemStore.getModuleKeyDates(this.props.moduleCode);
-		return(
+		return (
 			<div>
 				{this.renderKeyDates(filteredKeyDates)}
 			</div>
