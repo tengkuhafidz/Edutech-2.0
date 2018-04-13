@@ -23,13 +23,11 @@ moment.locale('en');
 momentLocalizer();
 
 @observer
-class GroupMeeting extends Component{
-
-  constructor(props){
+class GroupMeeting extends Component {
+  constructor(props) {
       super(props);
       this.state = {
         checked: false,
-        viewAll : false,
         title: null,
         description: null,
         location: null,
@@ -38,20 +36,17 @@ class GroupMeeting extends Component{
         showMeetingForm: false
       }
   }
-
-  checkSelectedDateValid(startTime , endTime){
-    let membersScheduleItems = toJS(ScheduleItemStore.userGroupScheduleItems);
-    for(var i=0 ; i<membersScheduleItems.length ; i++){
+  checkSelectedDateValid(startTime , endTime) {
+    const membersScheduleItems = toJS(ScheduleItemStore.userGroupScheduleItems);
+    for(var i=0 ; i<membersScheduleItems.length ; i++) {
       let memberStart = new Date(membersScheduleItems[i].startDate);
       let memnberEnd = new Date(membersScheduleItems[i].endDate);
-      if((startTime>memberStart && startTime<memnberEnd) || (endTime>memberStart && endTime<memnberEnd)){
+      if ((startTime>memberStart && startTime<memnberEnd) || (endTime>memberStart && endTime<memnberEnd)) {
         // console.log("1 selected: ",startTime, endTime)
         // console.log("1 member: ", memberStart, memnberEnd)
         swal("Warning!", "Your chosen time is clashing with your member schedule.", "warning");
         return false;
-      }else if(memberStart>startTime && memberStart<endTime){
-        // console.log("2 selected: ",startTime, endTime)
-        // console.log("2 member: ", memberStart, memnberEnd)
+      } else if (memberStart>startTime && memberStart<endTime) {
         swal("Warning!", "Your chosen time is clashing with your member schedule.", "warning");
         return false;
       }
@@ -59,7 +54,7 @@ class GroupMeeting extends Component{
     return true;
   }
 
-  addMeetingItem(){
+  addMeetingItem() {
     var title = this.state.title;
     var description = this.state.description;
     var startTime = this.state.startTime;

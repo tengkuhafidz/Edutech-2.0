@@ -8,47 +8,48 @@ import ScheduleItemStore from '../ScheduleItemStore/ScheduleItemStore';
 // let fetchedItems = fetchScheduleItems();
 
 class MeetingStore {
-
     @observable meetings = [];
     @observable editFormSuccess;
     @observable addFormSuccess = false;
 
     @action
-	populateMeetings(groupId){
+	populateMeetings(groupId) {
       // const groupId = 101;
       console.log(groupId);
      	axios.get(`/scheduleitem/group/${groupId}`)
 	    .then((res) => {
-        console.log("Populating MeetingStore", res.data)
+        console.log('Populating MeetingStore', res.data);
 	      this.meetings = res.data;
         ScheduleItemStore.populateMergedScheduleItemsForGroup(groupId);
 	    })
-	    .catch((error)=>{
+	    .catch((error) => {
 	      console.log(error);
-        swal("Error!", "Network error in getting meetings.", "error")
+        swal('Error!', 'Network error in getting meetings.', 'error');
 	    });
      }
 
 
      @action
     addMeeting(title, description, startDate, endDate, location, groupId, itemType) {
-      	if(!title || !description || !startDate || !endDate || !location){
-          swal("Warning!", "Please make sure all fields are entered.", "warning");
-        } else if(startDate > endDate) {
-          swal("Time Error!", "Please make sure start time is earlier than end time.", "warning");
-        } else{
-          const dType = "ScheduleItem";
-          const createdBy = localStorage.getItem("username");
-          const newMeeting = new Meeting(title, description, startDate, endDate, location, createdBy, itemType, groupId, [], dType);
+      	if (!title || !description || !startDate || !endDate || !location) {
+          swal('Warning!', 'Please make sure all fields are entered.', 'warning');
+        } else if (startDate > endDate) {
+          swal('Time Error!', 'Please make sure start time is earlier than end time.', 'warning');
+        } else {
+          const dType = 'ScheduleItem';
+          const createdBy = localStorage.getItem('username');
+          const newMeeting = new Meeting(title, description, startDate,
+            endDate, location, createdBy, itemType, groupId, [], dType
+          );
           const dataSet = toJS(newMeeting);
-          dataSet.createdBy ={username: dataSet.createdBy};
+          dataSet.createdBy = { username : dataSet.createdBy };
           console.log("Data Set : ", dataSet);
-          this.addFormSuccess = true;
           axios.post('/scheduleitem', dataSet)
             .then((res) => {
               this.meetings.push(newMeeting);
               swal("Success!","Meeting Event Added!" , "success");
               this.populateMeetings(groupId);
+              this.addFormSuccess = true;
             })
             .catch((err) => {
               console.log(err);
@@ -88,7 +89,7 @@ class MeetingStore {
     }
 
     @action
-    removeMeeting(id, groupId, meeting: Meeting){
+    removeMeeting(id, groupId, meeting: Meeting) {
       axios.delete( `/scheduleitem/${id}`)
       .then((res) => {
         const index = this.meetings.indexOf(meeting);
@@ -98,7 +99,7 @@ class MeetingStore {
         swal("Success!", "Meeting removed successfully.", "success")
         this.populateMeetings(groupId);
       })
-      .catch((err) =>{
+      .catch((err) => {
         console.log(err);
         swal("Error!", "Network error in removing meeting.", "error")
       })

@@ -1,64 +1,75 @@
 import React, { Component } from 'react';
 import { Label, Row, Button } from 'react-bootstrap';
 import { observer } from 'mobx-react';
-import Dialog from 'material-ui/Dialog';
-import FlatButton from 'material-ui/FlatButton';
+import { RaisedButton, Divider, Paper, FlatButton, List, ListItem, Avatar, Dialog, Subheader } from 'material-ui';
 
 import GroupingListInstructor from './GroupingListInstructor';
 import AssignmentStore from '../../../stores/ModuleStore/AssignmentStore';
+import GroupStore from '../../../stores/GroupStore/GroupStore';
+import ModuleStore from '../../../stores/ModuleStore/ModuleStore';
+
+import { USER_IMAGE_PATH } from '../../../utils/constants';
 
 @observer
 class SingleAssignmentGroup extends Component {
 	constructor() {
 		super();
 		this.state = {
-			openDialog: false,
+			openMembersDialog: false,
 		}
 	}
 	getMembersWithoutGroup() {
 		const { id } = this.props.assignment;
-		this.setState({ openDialog: true })
+		this.setState({ openMembersDialog: true })
 		AssignmentStore.getMembersWithoutGroup(id);
 	}
-	handleCloseDialog() {
-    this.setState({ openDialog: false });
-  }
+	doAutoAssignMembers(assignmentId) {
+		const { moduleCode } = ModuleStore.selectedModule;
+		GroupStore.doAutoAssignMembers(assignmentId, moduleCode);
+	}
 	renderViewMembersWithtouGroupBtn() {
 		return (<Button bsStyle="primary" onClick={() => this.getMembersWithoutGroup()}>View Members Without Group</Button>)
 	}
 	renderMembersWithoutGroupDialog() {
+		const { assignment } = this.props;
 		const { membersWithoutGroup } = AssignmentStore;
-		console.log('membersWithoutGroup: ', membersWithoutGroup);
-		const actions = [
-      <FlatButton
-        label="Cancel"
-        primary={true}
-        onClick={() => this.handleCloseDialog()}
-      />,
-      <FlatButton
-        label="Submit"
-        primary={true}
-        keyboardFocused={true}
-      />,
+    let studentsList = <ListItem primaryText="All students assigned." />;
+    if (membersWithoutGroup && membersWithoutGroup.length > 0) {
+      studentsList = membersWithoutGroup.map(member => (
+          <ListItem
+            primaryText={member.userFirstName + ' ' + member.userLastName}
+            leftAvatar={<Avatar src={USER_IMAGE_PATH + member.imgFileName} />}
+          />
+        ));
+    }
+    const actions = [
+     <FlatButton
+       label="Close"
+       primary
+       onClick={() => this.setState({ openMembersDialog: false })}
+     />,
+		 <FlatButton
+      label="Auto Assign Members"
+			primary
+			onClick={() => this.doAutoAssignMembers(assignment.id)}
+		 />
     ];
-		return (
-			<Dialog
-        title="Dialog With Actions"
+    return (
+      <Dialog
+        title={`${assignment.title} Members`}
         actions={actions}
-        modal={true}
-        open={this.state.openDialog}
-        onRequestClose={() => this.handleCloseDialog()}
+        modal={false}
+        open={this.state.openMembersDialog}
+        onRequestClose={() => this.setState({ openMembersDialog: false })}
+        autoScrollBodyContent
       >
-				<h4>Members Without Group</h4>
-				<ul>
-				{
-					(membersWithoutGroup && membersWithoutGroup.length > 0) ?
-					(membersWithoutGroup.map(member => (<li>{member.username}</li>))) : <p>Loading . . .</p>
-				}
-				</ul>
+        <List>
+          <Subheader>Students Without Groups</Subheader>
+          {studentsList}
+        </List>
       </Dialog>
-		)
-	}
+    );
+  }
 	render() {
 		const { assignment } = this.props;
 		const moduleGrouping = assignment.groups;

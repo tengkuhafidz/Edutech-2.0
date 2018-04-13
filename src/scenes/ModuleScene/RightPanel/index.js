@@ -96,7 +96,7 @@ class RightPanel extends Component {
     if (ModuleStore.instructors && ModuleStore.instructors > 0) {
       instructorsList = ModuleStore.instructors.map(member => (
           <ListItem
-            primaryText={member.userFirstName + " " + member.userLastName}
+            primaryText={member.userFirstName + ' ' + member.userLastName}
             leftAvatar={<Avatar src={USER_IMAGE_PATH + member.imgFileName} />}
           />
         ));
@@ -105,7 +105,7 @@ class RightPanel extends Component {
     if (ModuleStore.students && ModuleStore.students.length > 0) {
       studentsList = ModuleStore.students.map(member => (
           <ListItem
-            primaryText={member.userFirstName + " " + member.userLastName}
+            primaryText={member.userFirstName + ' ' + member.userLastName}
             leftAvatar={<Avatar src={USER_IMAGE_PATH + member.imgFileName} />}
           />
         ));

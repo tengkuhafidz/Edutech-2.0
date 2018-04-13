@@ -4,4 +4,6 @@ const findUserGroups = async username => axios.get(`/group/user/${username}`);
 
 const getMembersWithoutGroup = async assignmentId => axios.get(`/group/memberswithoutgroup/${assignmentId}`);
 
-export { findUserGroups, getMembersWithoutGroup }; // eslint-disable-line
+const autoAssignMembers = async assignmentId => axios.put(`/group/autoAssign/${assignmentId}`);
+
+export { findUserGroups, getMembersWithoutGroup, autoAssignMembers }; // eslint-disable-line

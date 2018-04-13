@@ -1,35 +1,34 @@
-import React, {Component} from 'react';
-import {Label, Row} from 'react-bootstrap';
+import React, { Component } from 'react';
+import { Label, Row } from 'react-bootstrap';
 
 import GroupingListStudent from './GroupingListStudent';
 
 
 class SingleAssignmentGroup extends Component {
-
-	checkUserInAssignment(moduleGrouping){
+	checkUserInAssignment(moduleGrouping) {
 		const username = localStorage.getItem('username');
 		let studentExist = false;
-		for(var i=0 ; i<moduleGrouping.length ; i++){
+		for (let i = 0; i < moduleGrouping.length; i++) {
 			studentExist = moduleGrouping[i].members.find((member) => {
-				if(member.username === username){
+				if (member.username === username) {
 					return true;
 				}
 			})
-			if(studentExist)
+			if (studentExist) {
 				return true;
+			}
 		}
 
 		return false;
 	}
 
-	render(){
+	render() {
 		// console.log("props assignment: ", this.props.assignment)
-		const assignment = this.props.assignment;
+		const { assignment } = this.props;
 		const moduleGrouping = assignment.groups;
-
 		const studentExist = this.checkUserInAssignment(moduleGrouping);
 		// console.log("STUDENT EXIST: ", studentExist);
-		return(
+		return (
 			<div>
 				<h3>
 			    	{assignment.title}
@@ -38,11 +37,11 @@ class SingleAssignmentGroup extends Component {
 				<Row>
 					{
 						(moduleGrouping.length > 0) ? (
-							moduleGrouping.map((group) => {
-								return <GroupingListStudent key={group.id} group={group} assignmentId={assignment.id} studentExist={studentExist} moduleCode={assignment.module.moduleCode}/>
-							})
+							moduleGrouping.map(group =>
+								(<GroupingListStudent key={group.id} group={group} assignmentId={assignment.id} studentExist={studentExist} moduleCode={assignment.module.moduleCode}/>)
 							)
-						: (<span></span>)
+							)
+						: ''
 					}
 				</Row>
 				<hr />

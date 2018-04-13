@@ -3,7 +3,8 @@ import axios from 'axios';
 import swal from 'sweetalert';
 
 import UtilStore from '../UtilStore/UtilStore';
-import { findUserGroups } from '../../services/groupApi';
+import AssignmentStore from '../ModuleStore/AssignmentStore';
+import { findUserGroups, autoAssignMembers } from '../../services/groupApi';
 
 class GroupStore {
   @observable groupList = [];
@@ -16,6 +17,20 @@ class GroupStore {
       this.groupList = groups.data;
       this.donePopulating = true;
     });
+  }
+
+  @action
+  async doAutoAssignMembers(assignmentId, moduleCode) {
+    console.log('autoAssign members in ', assignmentId)
+    try {
+      const res = await autoAssignMembers(assignmentId);
+      console.log('res data auto assign: ', res.data);
+      AssignmentStore.populateModuleAssignments(moduleCode)
+      // this.groupList = res.data;
+      // this.donePopulating = true;
+    } catch(e) {
+      console.log(e);
+    }
   }
 
 	@action

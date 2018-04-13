@@ -94,8 +94,8 @@ class AssignmentStore {
 			const res = await getMembersWithoutGroup(assignmentId);
 			console.log('members without group', res.data);
 			this.membersWithoutGroup = res.data;
-		} catch(e) {
-
+		} catch (e) {
+			console.log(e)
 		}
 	}
 
@@ -103,7 +103,7 @@ class AssignmentStore {
 	populateModuleAssignments(moduleCode) {
 		axios.get(`/assignment/module/${moduleCode}`)
 		.then((res) => {
-			console.log("assignmentList store", res.data);
+			console.log('assignmentList store', res.data);
 			this.assignmentList = res.data
 		})
 		.catch((err) => {
