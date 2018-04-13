@@ -4,6 +4,7 @@ import swal from 'sweetalert';
 
 import ScheduleItem from './ScheduleItem';
 import GroupStore from '../GroupStore/GroupStore';
+import AnnouncementStore from '../AnnouncementStore/AnnouncementStore';
 import UtilStore from '../UtilStore/UtilStore';
 import { findGroupScheduleItems, createScheduleItem, editScheduleItem, deleteScheduleItem } from '../../services/scheduleItemApi';
 
@@ -53,6 +54,12 @@ class GroupScheduleItemStore {
         const scheduleItem = await createScheduleItem(newScheduleItem);
         this.scheduleItems.push(scheduleItem.data);
         UtilStore.openSnackbar(`${scheduleItem.data.title} created as Meeting`);
+        AnnouncementStore.postAnnouncement(
+          `Meeting scheduled for ${GroupStore.selectedGroup.title}`,
+           title,
+           GroupStore.selectedGroup.members,
+           `group/${GroupStore.selectedGroup.id}`,
+        );
       } catch (e) {
         swal('Error', 'Error adding schedule item', 'error');
       }

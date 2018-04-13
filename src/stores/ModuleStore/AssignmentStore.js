@@ -11,6 +11,9 @@ import FileSaver from 'file-saver';
 import UtilStore from '../UtilStore/UtilStore';
 
 import GroupStore from '../GroupStore/GroupStore';
+import ModuleStore from '../ModuleStore/ModuleStore';
+import AnnouncementStore from '../AnnouncementStore/AnnouncementStore';
+
 
 class AssignmentStore {
 	@observable assignmentList = [];
@@ -28,6 +31,12 @@ class AssignmentStore {
 			try {
 				const assignmentItem = await createIndividualAssignment(dataSet)
 				console.log('assignment item: ', assignmentItem.data);
+				AnnouncementStore.postAnnouncement(
+					`Individual Assignment published for ${ModuleStore.selectedGroup.moduleCode}`,
+					 title,
+					 ModuleStore.selectedGroup.members,
+					 `module/${ModuleStore.selectedGroup.moduleCode}`,
+				);
 				UtilStore.openSnackbar("Individual Assignment created successfully");
 				this.populateModuleAssignments(moduleCode);
 			} catch (e) {
@@ -41,6 +50,12 @@ class AssignmentStore {
 				console.log('assignment item: ', assignmentItem.data);
 				this.populateModuleAssignments(moduleCode);
 				UtilStore.openSnackbar("Group Assignment created successfully");
+				AnnouncementStore.postAnnouncement(
+					`Group Assignment published for ${ModuleStore.selectedModule.moduleCode}`,
+					 title,
+					 ModuleStore.selectedModule.members,
+					 `module/${ModuleStore.selectedModule.moduleCode}`,
+				);
 			} catch (e) {
 				swal('Error!', 'Unable to create group assignment', 'error')
 			}
