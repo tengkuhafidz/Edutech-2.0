@@ -3,6 +3,8 @@ import moment from 'moment';
 import axios from 'axios';
 import swal from 'sweetalert';
 
+import AnnouncementStore from '../AnnouncementStore/AnnouncementStore';
+import GroupStore from '../GroupStore/GroupStore';
 import UtilStore from '../UtilStore/UtilStore';
 import TaskStore from './TaskStore';
 import ScheduleItemStore from '../ScheduleItemStore/ScheduleItemStore';
@@ -30,13 +32,18 @@ class GroupTaskStore {
       try {
         const newTask = await axios.post('/task', task);
         this.tasks.unshift(newTask.data);
-        UtilStore.openSnackbar('Task added');
         if (newTask.data.assignedTo[0] && newTask.data.assignedTo[0].username === localStorage.getItem('username')) {
           TaskStore.populateTasks(localStorage.getItem('username'));
           ScheduleItemStore.populateScheduleItems(localStorage.getItem('username'));
         }
+        AnnouncementStore.postAnnouncement(
+          `Task Created in ${GroupStore.selectedGroup.title}`,
+           task.title,
+           GroupStore.selectedGroup.members,
+           `group/${GroupStore.selectedGroup.id}`,
+        );
+        UtilStore.openSnackbar('Task added');
       } catch (e) {
-        console.log('e', e)
         swal('Error', 'Error adding task', 'error');
       }
     }
@@ -49,7 +56,6 @@ class GroupTaskStore {
         }
         await axios.put(`/task/${task.id}`, task: Task);
         UtilStore.openSnackbar('Task editted');
-
       } catch (e) {
         swal('Error', 'Error editting task', 'error');
       }

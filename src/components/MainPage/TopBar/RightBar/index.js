@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Drawer, Tabs, Tab } from 'material-ui';
 
+import Notifications from './Notifications';
 import KeyDates from './KeyDates';
 import './styles.css';
 
@@ -15,7 +16,6 @@ export default class RightBar extends Component {
         open={openRightBar}
         openSecondary={true}
         onRequestChange={() => handleToggleRightBar()}
-
       >
       <Tabs>
         <Tab label="Key Dates">
@@ -23,10 +23,7 @@ export default class RightBar extends Component {
         </Tab>
         <Tab label="Notifications">
           <div>
-            <h2>Notifications</h2>
-            <p>
-              This is another example tab.
-            </p>
+            <Notifications />
           </div>
         </Tab>
       </Tabs>
