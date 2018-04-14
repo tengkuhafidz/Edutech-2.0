@@ -27,12 +27,11 @@ class AssignmentStore {
 		if (type === 'individual') {
 			try {
 				const assignmentItem = await createIndividualAssignment(dataSet)
-				console.log('assignment item: ', assignmentItem.data);
 				AnnouncementStore.postAnnouncement(
-					`Individual Assignment published for ${ModuleStore.selectedGroup.moduleCode}`,
-					 title,
-					 ModuleStore.selectedGroup.members,
-					 `module/${ModuleStore.selectedGroup.moduleCode}`,
+					ModuleStore.selectedModule.moduleCode,
+					`Individual Assignment: ${title} published`,
+					 ModuleStore.selectedModule.members,
+					 `module/${ModuleStore.selectedModule.moduleCode}?tabKey/Assignments`,
 				);
 				UtilStore.openSnackbar("Individual Assignment created successfully");
 				this.populateModuleAssignments(moduleCode);
@@ -48,10 +47,10 @@ class AssignmentStore {
 				this.populateModuleAssignments(moduleCode);
 				UtilStore.openSnackbar("Group Assignment created successfully");
 				AnnouncementStore.postAnnouncement(
-					`Group Assignment published for ${ModuleStore.selectedModule.moduleCode}`,
-					 title,
+					ModuleStore.selectedModule.moduleCode,
+					`Group Assignment: ${title} published`,
 					 ModuleStore.selectedModule.members,
-					 `module/${ModuleStore.selectedModule.moduleCode}`,
+					 `/module/${ModuleStore.selectedModule.moduleCode}`,
 				);
 			} catch (e) {
 				swal('Error!', 'Unable to create group assignment', 'error')

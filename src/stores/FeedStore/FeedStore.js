@@ -4,6 +4,9 @@ import swal from 'sweetalert';
 
 import Post from './Post';
 import UtilStore from '../UtilStore/UtilStore';
+import GroupStore from '../GroupStore/GroupStore';
+import ModuleStore from '../ModuleStore/ModuleStore';
+import AnnouncementStore from '../AnnouncementStore/AnnouncementStore';
 
 class FeedStore {
     @observable posts = [];
@@ -23,6 +26,21 @@ class FeedStore {
 
     async createPost(post: Post) {
       await axios.post('/post', post);
+      if (!isNaN(post.pageId)) {
+        AnnouncementStore.postAnnouncement(
+          GroupStore.selectedGroup.title,
+          `New conversation started: ${post.message}`,
+           GroupStore.selectedGroup.members,
+           `/group/${GroupStore.selectedGroup.id}?tabKey=Conversations`,
+        );
+      } else {
+        AnnouncementStore.postAnnouncement(
+          ModuleStore.selectedModule.moduleCode,
+          `New conversation started: ${post.message}`,
+           ModuleStore.selectedModule.members,
+           `/module/${ModuleStore.selectedModule.moduleCode}?tabKey=Conversations`,
+        );
+      }
       UtilStore.openSnackbar('post added');
       this.fetchPagePosts();
     }

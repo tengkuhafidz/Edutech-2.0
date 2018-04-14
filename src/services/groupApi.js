@@ -2,4 +2,6 @@ import axios from 'axios';
 
 const findUserGroups = async username => axios.get(`/group/user/${username}`);
 
-export { findUserGroups }; // eslint-disable-line
+const findGroup = async id => axios.get(`/group/${id}`);
+
+export { findUserGroups, findGroup }; // eslint-disable-line

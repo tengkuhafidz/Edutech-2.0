@@ -129,6 +129,21 @@ class MyCalendar extends Component {
     return '';
   }
 
+  renderToggle() {
+    if (!ScheduleItemStore.timetableItems || ScheduleItemStore.timetableItems.length < 1) {
+      return '';
+    }
+    return (
+      <Toggle
+        label="Timetable only"
+        labelStyle={{ fontWeight: 'normal' }}
+        style={{ marginTop: '-25px', marginRight: '10px' }}
+        className="pull-right text-right"
+        onToggle={() => this.setState({ timetableOnly: !this.state.timetableOnly })}
+      />
+    );
+  }
+
 	render() {
     const scheduleItems = this.state.timetableOnly ?
       ScheduleItemStore.timetableItems : ScheduleItemStore.scheduleItems;
@@ -139,13 +154,6 @@ class MyCalendar extends Component {
 		return (
       <Paper className="myCalendar">
         <h3> My Schedule </h3>
-          <Toggle
-            label="Timetable only"
-            labelStyle={{ fontWeight: 'normal' }}
-            style={{ marginTop: '-25px', marginRight: '10px' }}
-            className="pull-right text-right"
-            onToggle={() => this.setState({ timetableOnly: !this.state.timetableOnly })}
-          />
         <div className="calendarContainter">
           <BigCalendar
             events={events}

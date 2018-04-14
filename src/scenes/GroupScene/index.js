@@ -6,6 +6,7 @@ import { Wave } from 'better-react-spinkit';
 import { Row, Col, FormControl } from 'react-bootstrap';
 import moment from 'moment';
 import swal from 'sweetalert';
+import { Link } from 'react-router-dom';
 
 import GroupStore from '../../stores/GroupStore/GroupStore';
 import GroupScheduleItemStore from '../../stores/ScheduleItemStore/GroupScheduleItemStore';
@@ -18,8 +19,9 @@ import GroupCalendar from './GroupCalendar';
 import GroupScheduleItemsChart from './GroupScheduleItemsChart';
 import GroupTask from './GroupTask';
 import GroupTaskStore from '../../stores/TaskStore/GroupTaskStore';
-import {USER_IMAGE_PATH} from '../../utils/constants';
+import * as qs from 'query-string';
 
+import {USER_IMAGE_PATH} from '../../utils/constants';
 import './styles.css';
 
 
@@ -29,26 +31,32 @@ export default class GroupScene extends Component {
     openMembersDialog: false,
     editView: false,
     tempDescription: null,
+    activeTabKey: 'Conversations',
   }
-  async componentDidMount() {
+  async componentWillMount() {
     const { groupId } = this.props.match.params;
     await GroupStore.setSelectedGroup(groupId);
     await GroupTaskStore.fetchGroupTasks(groupId);
     await GroupScheduleItemStore.populateGroupScheduleItems(groupId);
-    this.setState({ tempDescription: GroupStore.selectedGroup.description })
-
+    this.setState({ tempDescription: GroupStore.selectedGroup.description });
+    if (qs.parse(this.props.location.search).tabKey) {
+      this.setState({ activeTabKey: qs.parse(this.props.location.search).tabKey });
+    }
   }
   async componentWillReceiveProps(newProps) {
     const { groupId } = newProps.match.params;
     await GroupStore.setSelectedGroup(groupId);
     await GroupTaskStore.fetchGroupTasks(groupId);
     await GroupScheduleItemStore.populateGroupScheduleItems(groupId);
-    this.setState({ tempDescription: GroupStore.selectedGroup.description })
+    this.setState({ tempDescription: GroupStore.selectedGroup.description });
+    if (qs.parse(this.props.location.search).tabKey) {
+      this.setState({ activeTabKey: qs.parse(this.props.location.search).tabKey });
+    }
   }
   handleEnterPress(e) {
     if (e.which === 13) {
       GroupStore.editGroupDescription(e.target.value);
-      this.setState({ editView: false })
+      this.setState({ editView: false });
     }
   }
 
@@ -84,18 +92,19 @@ export default class GroupScene extends Component {
 
   renderUpcomingMeetings() {
     if (GroupScheduleItemStore.sortedUpcomingMeetings[0]) {
+      const { title, startDate, endDate, location, id, groupId} = GroupScheduleItemStore.sortedUpcomingMeetings[0];
       return (
         <div>
           <p className="lead">Upcoming Meeting:</p>
           <div className="paperDefault standardTopGap">
             <div className="">
-              <h4><b>{GroupScheduleItemStore.sortedUpcomingMeetings[0].title}</b></h4>
+              <h4><b>{title}</b></h4>
               <p>
-                {moment(GroupScheduleItemStore.sortedUpcomingMeetings[0].startDate).format('Do MMMM h:mm a') + ' - '
-                  + moment(GroupScheduleItemStore.sortedUpcomingMeetings[0].endDate).format('h:mm a')}
+                {moment(startDate).format('Do MMMM h:mm a') + ' - '
+                  + moment(endDate).format('h:mm a')}
               </p>
-              <p>{GroupScheduleItemStore.sortedUpcomingMeetings[0].location}</p>
-              <RaisedButton label="View Agenda" secondary style={{margin: '15px'}} onClick={() => this.setState({ openMembersDialog: true })}/>
+              <p>{location}</p>
+              <RaisedButton label="Enter" secondary style={{ margin: '15px' }} containerElement={<Link to={`/room/${id}/${groupId}`} target="_blank" />}/>
             </div>
           </div>
         </div>
@@ -142,23 +151,23 @@ export default class GroupScene extends Component {
         <Row>
           <Col md={8}>
             <Paper className="animated fadeIn">
-              <Tabs>
-                <Tab label="Conversations" >
+              <Tabs value={this.state.activeTabKey} onChange={tabKey => this.setState({ activeTabKey: tabKey })}>
+                <Tab label="Conversations" value="Conversations">
                   <div className="tabContent">
                     <Feed pageId={groupId} scene="group" />
                   </div>
                 </Tab>
-                <Tab label="Meetings">
+                <Tab label="Meetings" value="Meetings">
                   <div className="tabContent">
                     <GroupMeeting groupId={groupId} />
                   </div>
                 </Tab>
-                <Tab label="Tasks">
+                <Tab label="Tasks" value="Tasks">
                   <div className="tabContent">
                     <GroupTask groupId={groupId} selectedGroup={GroupStore.selectedGroup} />
                   </div>
                 </Tab>
-                <Tab label="Schedule">
+                <Tab label="Schedule" value="Schedule">
                   <div className="tabContent">
                     <GroupCalendar groupId={groupId} viewChart />
                   </div>
@@ -180,7 +189,6 @@ export default class GroupScene extends Component {
               <Row className="sideSectionItem">
                 <div>
                   {this.renderUpcomingMeetings()}
-
                 </div>
               </Row>
               <Divider />

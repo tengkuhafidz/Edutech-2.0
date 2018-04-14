@@ -3,12 +3,15 @@ import axios from 'axios';
 import swal from 'sweetalert';
 
 import UtilStore from '../UtilStore/UtilStore';
-import { findUserGroups } from '../../services/groupApi';
+import { findUserGroups, findGroup } from '../../services/groupApi';
 
 class GroupStore {
   @observable groupList = [];
   @observable donePopulating = false;
   @observable selectedGroup;
+  @observable collabGroup;
+  @observable doneFetchingCollabGroup = false;
+
 
   async populateGroupList(username) {
     const groups = await findUserGroups(username);
@@ -18,10 +21,17 @@ class GroupStore {
     });
   }
 
+  async fetchCollabGroup(id) {
+    const group = await findGroup(id);
+    runInAction(() => {
+      this.collabGroup = group.data;
+      this.doneFetchingCollabGroup = true;
+    });
+  }
+
 	@action
 	getGroup(groupId) {
-		this.selectedGroup = this.groupList.find(group => group.id === parseInt(groupId, 10));
-		return this.selectedGroup;
+		return this.groupList.find(group => group.id === parseInt(groupId, 10));
 	}
 
   @action
@@ -41,14 +51,12 @@ class GroupStore {
 
   @action
   async editGroupDescription(newDescription) {
-    console.log('editGroupDescription newDescription', newDescription, 'this.selectedGroup', this.selectedGroup)
     try {
       this.selectedGroup.description = newDescription;
-      console.log('this.selectedGroup.descripton ', this.selectedGroup.description)
       await axios.put(`/group/${this.selectedGroup.id}`, this.selectedGroup);
-      UtilStore.openSnackbar('Group decription updated')
+      UtilStore.openSnackbar('Group decription updated');
     } catch (e) {
-      swal('Error', 'Error updating group description', 'error')
+      swal('Error', 'Error updating group description', 'error');
     }
   }
 }

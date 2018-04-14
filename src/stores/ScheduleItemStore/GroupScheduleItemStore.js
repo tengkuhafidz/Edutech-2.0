@@ -6,7 +6,7 @@ import ScheduleItem from './ScheduleItem';
 import GroupStore from '../GroupStore/GroupStore';
 import AnnouncementStore from '../AnnouncementStore/AnnouncementStore';
 import UtilStore from '../UtilStore/UtilStore';
-import { findGroupScheduleItems, createScheduleItem, editScheduleItem, deleteScheduleItem } from '../../services/scheduleItemApi';
+import { findScheduleItem, findGroupScheduleItems, createScheduleItem, editScheduleItem, deleteScheduleItem } from '../../services/scheduleItemApi';
 
 class GroupScheduleItemStore {
   @observable scheduleItems = [
@@ -19,6 +19,8 @@ class GroupScheduleItemStore {
     },
   ];
   @observable donePopulating = false;
+  @observable collabMeeting;
+  @observable doneFetchingCollabMeeting = false;
 
   async populateGroupScheduleItems(username) {
     try {
@@ -28,6 +30,21 @@ class GroupScheduleItemStore {
         this.scheduleItems = scheduleItems.data.length > 0 ?
           scheduleItems.data : this.scheduleItems;
         this.donePopulating = true;
+      });
+    } catch (e) {
+      swal('Error', 'Error populating personal schedule items', 'error');
+    }
+  }
+
+  async fetchCollabMeeting(id) {
+    try {
+      console.log('fetchCollabMeeting id', id)
+      const meeting = await findScheduleItem(id);
+      console.log('meeting', meeting.data)
+      runInAction(() => {
+        // populate with fake data if no items, so bigCalendar will show #hack
+        this.collabMeeting = meeting.data
+        this.doneFetchingCollabMeeting = true;
       });
     } catch (e) {
       swal('Error', 'Error populating personal schedule items', 'error');
@@ -55,10 +72,10 @@ class GroupScheduleItemStore {
         this.scheduleItems.push(scheduleItem.data);
         UtilStore.openSnackbar(`${scheduleItem.data.title} created as Meeting`);
         AnnouncementStore.postAnnouncement(
-          `Meeting scheduled for ${GroupStore.selectedGroup.title}`,
-           title,
+          GroupStore.selectedGroup.title,
+           `Meeting ${title} scheduled`,
            GroupStore.selectedGroup.members,
-           `group/${GroupStore.selectedGroup.id}`,
+           `/group/${GroupStore.selectedGroup.id}?tabKey=Meetings`,
         );
       } catch (e) {
         swal('Error', 'Error adding schedule item', 'error');
@@ -165,6 +182,23 @@ class GroupScheduleItemStore {
   @computed
   get groupItems() {
     return this.taskItems.concat(this.meetingItems);
+  }
+
+  @action
+  getScheduleItem(scheduleItemId) {
+    const index =
+      this.scheduleItems.findIndex(scheduleItem => scheduleItem.id === scheduleItemId);
+    return this.scheduleItems[index];
+  }
+
+  @action
+  setCollabMeeting(scheduleItemId) {
+    console.log('scheduleItems', this.scheduleItems)
+    const index =
+      this.scheduleItems.findIndex(scheduleItem => scheduleItem.id === scheduleItemId);
+      console.log('index', index)
+    this.collabMeeting = this.scheduleItems[index];
+    console.log('this.collabMeeting', this.collabMeeting);
   }
 }
 

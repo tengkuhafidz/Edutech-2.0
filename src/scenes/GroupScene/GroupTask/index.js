@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Paper, RaisedButton } from 'material-ui';
+import { Paper, RaisedButton, FlatButton, Dialog } from 'material-ui';
 import { Tabs, Tab, Col, Row, Button, FormControl } from 'react-bootstrap';
 import { observer } from 'mobx-react';
 import { DateTimePicker, DropdownList } from 'react-widgets';
@@ -9,6 +9,7 @@ import swal from 'sweetalert';
 
 import 'react-widgets/dist/css/react-widgets.css';
 
+import TaskAllocationChart from './TaskAllocationChart';
 import SingleGroupTask from './SingleGroupTask';
 import GroupTaskStore from '../../../stores/TaskStore/GroupTaskStore';
 import GroupStore from '../../../stores/GroupStore/GroupStore';
@@ -26,6 +27,7 @@ export default class GroupTask extends Component {
     taskDate: null,
     taskAssignee: null,
     activeTabKey: 2,
+    openChartDialog: false,
   }
 
   getGroupMemberNames() {
@@ -135,12 +137,37 @@ export default class GroupTask extends Component {
       </div>
     );
   }
+  renderChartDialog() {
+    const actions = [
+     <FlatButton
+       label="Close"
+       primary
+       onClick={() => this.setState({ openChartDialog: false })}
+     />,
+   ];
+    return (
+      <Dialog
+        actions={actions}
+        modal
+        open={this.state.openChartDialog}
+      >
+        <TaskAllocationChart />
+      </Dialog>
+    );
+  }
 
   render() {
     return (
       <div className="MyCurrentTasks">
         <h3> {GroupStore.selectedGroup.title} Tasks </h3>
+        <FlatButton
+          secondary
+          label="View Chart"
+          icon={<i className="fas fa-chart-bar" />}
+          onClick={() => this.setState({ openChartDialog: true })}
+        />
         { this.renderTaskInput() }
+        {this.renderChartDialog()}
         <Tabs activeKey={this.state.activeTabKey} onSelect={key => this.setState({ activeTabKey: key })} id="myTasksTab">
           <Tab eventKey={1} title="To Do">
             <div className="taskItems">

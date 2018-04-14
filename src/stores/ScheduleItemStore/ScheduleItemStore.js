@@ -160,19 +160,7 @@ class ScheduleItemStore {
   }
   @computed
   get timetableItems() {
-    const timetable =
-      this.scheduleItems.filter(scheduleItem => scheduleItem.itemType === 'timetable');
-    const timetableItems = (timetable && timetable.length > 0) ? timetable :
-      [
-        {
-          id: 0,
-          title: 'All Day Event very long title',
-          allDay: true,
-          start: new Date(2015, 3, 0),
-          end: new Date(2015, 3, 1),
-        },
-      ];
-      return timetableItems;
+    return this.scheduleItems.filter(scheduleItem => scheduleItem.itemType === 'timetable');
   }
   @computed
   get meetingItems() {

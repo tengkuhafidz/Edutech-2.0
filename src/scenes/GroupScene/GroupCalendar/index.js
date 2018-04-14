@@ -151,6 +151,21 @@ class GroupCalendar extends Component {
     return '';
   }
 
+  renderToggle() {
+    if (!GroupScheduleItemStore.meetingItems || GroupScheduleItemStore.meetingItems.length < 1) {
+      return '';
+    }
+    return (
+      <Toggle
+        label="Group events only"
+        labelStyle={{ fontWeight: 'normal' }}
+        style={{ marginRight: '10px' }}
+        className="pull-right text-right"
+        onToggle={() => this.setState({ groupItemsOnly: !this.state.groupItemsOnly })}
+      />
+    );
+  }
+
 	render() {
     const scheduleItems = this.state.groupItemsOnly ?
       GroupScheduleItemStore.groupItems : GroupScheduleItemStore.scheduleItems;
@@ -164,13 +179,7 @@ class GroupCalendar extends Component {
           {GroupStore.selectedGroup.title} Schedule
         </h3>
         {this.renderViewChartButton()}
-        <Toggle
-          label="Group events only"
-          labelStyle={{ fontWeight: 'normal' }}
-          style={{ marginRight: '10px' }}
-          className="pull-right text-right"
-          onToggle={() => this.setState({ groupItemsOnly: !this.state.groupItemsOnly })}
-        />
+        {this.renderToggle()}
         <div className="calendarContainter">
           <BigCalendar
             events={events}

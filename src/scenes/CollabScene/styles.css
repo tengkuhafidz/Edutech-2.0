@@ -1,0 +1,19 @@
+.collabScene {
+   margin: -85px -40px 0 -300px;
+   height: 100vh;
+   background-color: white;
+   overflow: hidden;
+}
+
+.leftMostSection {
+  padding: 65px 0px 0 20px;
+  border-right: 1px #AAA solid !important;
+  height: 100vh;
+}
+
+
+.section {
+  padding: 65px 0px 0 0px;
+  border-right: 1px #AAA solid !important;
+  height: 100vh;
+}
