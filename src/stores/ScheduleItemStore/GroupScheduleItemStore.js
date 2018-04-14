@@ -58,8 +58,10 @@ class GroupScheduleItemStore {
   ) {
     if (!title || !description || !start || !end || !location || !itemType) {
       swal('Warning!', 'Please make sure all fields are entered.', 'warning');
+      // UtilStore.openSnackbar('WARNING: Please make sure all fields are entered.');
     } else if (start > end) {
       swal('Time Error!', 'Please make sure start time is earlier than end time.', 'warning');
+      // UtilStore.openSnackbar('TIME ERROR: Please make sure start time is earlier than end time.');
     } else {
       const createdBy = JSON.parse(localStorage.getItem('currentUser'));
       const dType = 'ScheduleItem';

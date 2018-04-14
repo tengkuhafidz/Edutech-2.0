@@ -31,7 +31,6 @@ class GroupingStudent extends Component{
 
 		return(
 			<div className="standardTopGap">
-			 grouping student here
 				{this.renderAssignmentList()}
 			</div>
 		)

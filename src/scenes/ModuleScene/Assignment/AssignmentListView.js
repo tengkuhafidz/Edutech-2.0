@@ -60,7 +60,9 @@ class AssignmentListView extends Component {
 		const { assignmentList } = this.props;
 		return (
 			<div className="standardTopGap">
-			<h4>Students Submissions</h4>
+			{
+				(assignmentList.length > 0) ? (<h4>Students Submissions</h4>) : ''
+			}
 				<PanelGroup accordion id="accordion-example">
 					{this.renderAssignment(assignmentList)}
 				</PanelGroup>

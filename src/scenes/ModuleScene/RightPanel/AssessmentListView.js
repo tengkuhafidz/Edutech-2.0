@@ -13,7 +13,7 @@ class AssessmentListView extends Component {
 				console.log(keyDate)
 				let time = '';
 				let location = '';
-				let title = keyDate.title;
+				const { title } = keyDate;
 				if (keyDate.itemType === 'assessment') {
 					time = moment(keyDate.startDate).format('dddd, Do MMMM h:mm a') + ' - ' + moment(keyDate.endDate).format('h:mm a');
 					location = 'Location: ' + keyDate.location;
@@ -25,7 +25,7 @@ class AssessmentListView extends Component {
 					<div className="cardContainer">
 						<h4><b>{title}</b></h4>
 						<p>
-							Time: {time}
+							{time}
 						</p>
 						<p>{location}</p>
 					</div>
@@ -37,9 +37,8 @@ class AssessmentListView extends Component {
 	}
 	render() {
 		// const allAssessmentList = toJS(ScheduleItemStore.assessmentItems);
-		// const assessmentList = allAssessmentList.filter(item => item.moduleCode === this.props.moduleCode);
 		const filteredKeyDates = ScheduleItemStore.getModuleKeyDates(this.props.moduleCode);
-		return(
+		return (
 			<div>
 				{this.renderKeyDates(filteredKeyDates)}
 			</div>

@@ -5,15 +5,6 @@ import swal from 'sweetalert';
 
 import AssignmentStore from '../../../../stores/ModuleStore/AssignmentStore';
 
-function FieldGroup({ id, label, ...props }) {
-  return (
-    <FormGroup controlId={id}>
-      <ControlLabel>{label}</ControlLabel>
-      <FormControl {...props} />
-    </FormGroup>
-  );
-}
-
 class IndividualAssignmentView extends Component {
 
   constructor() {
@@ -22,32 +13,44 @@ class IndividualAssignmentView extends Component {
       file: null,
     }
   }
-  onSubmit(event) {
-    event.preventDefault();
-    const { id } = this.props.assignment;
-    const selectedFile = this.state.file;
-    console.log('selected File:', selectedFile);
+  onSubmit() {
+    // event.preventDefault();
+    const { file } = this.state;
     const username = localStorage.getItem('username');
-    const title = ''
-    if (selectedFile && selectedFile.size > 10000000) {
+    const { id } = this.props.assignment;
+    const title = '';
+    if (file && file.size > 10000000) {
       swal('File Size Error!', 'Your file size is more than 10MB.', 'error');
-    } else if (selectedFile) {
-      AssignmentStore.submitAssignment(id, selectedFile, username, title);
+    } else if (file === null) {
+      swal('Warning!', 'Please choose the file first.', 'error');
+    } else {
+      AssignmentStore.submitAssignment(title, file, username, id);
+      this.setState({ file: null })
     }
   }
   handleChange(e) {
+    console.log("target files: ", e.target.files)
     this.setState({ file: e.target.files[0] })
   }
-  // renderSubmissions(assignment) {
-  //   if (assignment.submissions.length > 0) {
-  //     return assignment.submissions.map(item => (
-  //       <ListGroupItem bsStyle="warning">
-  //         {item.fileName}
-  //       </ListGroupItem>
-  //     ))
-  //   }
-  //   return (<h4 style={{ textColor: 'blue' }}>You have no submission.</h4>)
-  // }
+  downloadFile(attachmentId, fileName) {
+    const { id } = this.props.assignment;
+    AssignmentStore.downloadAssignment(id, attachmentId, fileName);
+  }
+  renderDownloadBtn(attachmentId, fileName) {
+    return (<Button bsStyle="primary" bsSize="small" className="pull-right" onClick={() => this.downloadFile(attachmentId, fileName)}>Download</Button>)
+  }
+  renderSubmissions(assignment) {
+    if (assignment.submissions.length > 0) {
+      return assignment.submissions.map(item => (
+        <ListGroupItem bsStyle="warning">
+          {item.fileName}
+          {this.renderDownloadBtn(item.id, item.fileName)}
+          <p>Submitted By: {item.createdBy.username} at {moment(item.createdAt).format('DD/MM/YY hh:mm')}</p>
+        </ListGroupItem>
+      ))
+    }
+    return (<h4 style={{ textColor: 'blue' }}>You have no submission.</h4>)
+  }
   renderStudentListView(assignment) {
     const { members } = assignment.module;
     if (members) {
@@ -65,16 +68,10 @@ class IndividualAssignmentView extends Component {
     const userType = localStorage.getItem('userType');
     if (userType === 'student') {
       return (
-              <form onSubmit={() => this.onSubmit()}>
-			        <FormGroup>
-			          	<FieldGroup
-	                  type="file"
-	                  label="File"
-					          onChange={() => this.handleChange()}
-					        />
-						           <Button className="standardTopGap" type="submit" bsStyle="primary" block>Upload Attachment</Button>
-			        </FormGroup>
-              </form>
+        <form className="standardTopGap">
+        <input type="file" onChange={this.handleChange.bind(this)} size="1000" />
+        <Button className="standardTopGap" bsStyle="primary" block onClick={() => this.onSubmit()}>Submit Assignment</Button>
+        </form>
       )
     }
     return '';
@@ -89,8 +86,8 @@ class IndividualAssignmentView extends Component {
 				  Deadline: {deadlineDate}, {deadlineTime}
 				</h3>
           {this.renderSubmitArea()}
-			    <ListGroup>
-			    	{this.renderStudentListView(assignment)}
+			    <ListGroup className="standardTopGap">
+			    	{this.renderSubmissions(assignment)}
   	    </ListGroup>
         </div>
     );

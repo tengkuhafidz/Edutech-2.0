@@ -1,11 +1,13 @@
 import { observable, action } from 'mobx';
 import Assignment from './Assignment.js';
 import { fetchModuleAssignment, createGroupAssignment, createIndividualAssignment, deleteAssignment,
-joinAssignmentGroup, leaveAssignmentGroup } from '../../services/assignmentApi';
+joinAssignmentGroup, leaveAssignmentGroup, submitAssignmentFile } from '../../services/assignmentApi';
+import { getMembersWithoutGroup } from '../../services/groupApi';
 import axios from 'axios';
 import moment from 'moment';
 import _ from 'lodash';
 import swal from 'sweetalert';
+import FileSaver from 'file-saver';
 import UtilStore from '../UtilStore/UtilStore';
 
 import GroupStore from '../GroupStore/GroupStore';
@@ -15,6 +17,7 @@ import AnnouncementStore from '../AnnouncementStore/AnnouncementStore';
 
 class AssignmentStore {
 	@observable assignmentList = [];
+	@observable membersWithoutGroup = [];
 
 	@action
 	async createAssignment(openDate, closeDate, username, moduleCode, title, numberOfStudents, groupSize, type) {
@@ -62,11 +65,51 @@ class AssignmentStore {
 	async deleteAssignment(assignmentId) {
 		try {
 			const remainingAssignments = await deleteAssignment(assignmentId);
-			console.log('reamining assignments: ', remainingAssignments.data)
 			this.assignmentList = remainingAssignments.data;
 			UtilStore.openSnackbar('Assignment deleted successfully');
 		} catch (e) {
 			swal('Network Error!', 'Unable to delete assignment.', 'error')
+		}
+	}
+// submissions
+	@action
+	async submitAssignment(title, file, username, assignmentId) {
+		const formData = new FormData();
+		formData.append('title', title)
+		formData.append('file', file)
+		formData.append('createdBy', username)
+		try {
+				const assignment = await submitAssignmentFile(formData, assignmentId)
+				const index = this.getIndex(assignmentId, this.assignmentList, 'id')
+				console.log('return assignment: ', index, assignment.data)
+				this.assignmentList[index] = assignment.data;
+				swal('Success!', `${file.name} uploaded successfully.`, 'success');
+		} catch (e) {
+			swal('Error', 'Unable to submit assignment', 'error');
+		}
+	}
+
+	@action
+	downloadAssignment(assignmentId, attachmentId, fileName) {
+		console.log("DOWNLOADING ONE Assignment FILE", assignmentId, attachmentId, fileName)
+		axios.get(`/assignment/download/${assignmentId}/${attachmentId}`, { responseType: 'blob' })
+		.then((res) => {
+			const downloadedFile = res.data;
+			FileSaver.saveAs(downloadedFile, fileName);
+		})
+		.catch((err) => {
+			console.log(err);
+		})
+	}
+
+	@action
+	async getMembersWithoutGroup(assignmentId) {
+		try {
+			const res = await getMembersWithoutGroup(assignmentId);
+			console.log('members without group', res.data);
+			this.membersWithoutGroup = res.data;
+		} catch (e) {
+			console.log(e)
 		}
 	}
 
@@ -74,7 +117,7 @@ class AssignmentStore {
 	populateModuleAssignments(moduleCode) {
 		axios.get(`/assignment/module/${moduleCode}`)
 		.then((res) => {
-			console.log("assignmentList store", res.data);
+			console.log('assignmentList store', res.data);
 			this.assignmentList = res.data
 		})
 		.catch((err) => {
@@ -87,7 +130,6 @@ class AssignmentStore {
 		axios.put(`/group/join/${groupId}/${username}`)
 		.then((res) => {
 			const joinedGroup = res.data;
-			console.log("res data: ", joinedGroup)
 			this.populateModuleAssignments(moduleCode);
 			GroupStore.populateGroupList(username);
 		})
@@ -110,6 +152,14 @@ class AssignmentStore {
 		})
 	}
 
+	getIndex(value, arr, prop) {
+		for (let i = 0; i < arr.length; i++) {
+				if (arr[i][prop] === value) {
+						return i;
+				}
+		}
+		return -1;
+	}
 }
 
 export default new AssignmentStore;

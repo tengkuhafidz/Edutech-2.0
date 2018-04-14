@@ -15,10 +15,6 @@ import MeetingStore from '../../../stores/MeetingStore/MeetingStore';
 import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
 import GroupScheduleItemStore from '../../../stores/ScheduleItemStore/GroupScheduleItemStore';
 
-
-import EditMeetingForm from './EditMeetingForm';
-import Minute from './Minute';
-
 moment.locale('en');
 momentLocalizer();
 
@@ -31,13 +27,9 @@ class MeetingCard extends Component {
 		edittedLocation: '',
 		edittedStart: null,
 		edittedEnd: null,
-		openMinuteForm: false,
-		showEditForm: false,
 	}
-
 	componentWillMount() {
 		let { title, description, startDate, endDate, location, createdBy, type, id } = this.props.meeting;
-		console.log('LOL startDate', startDate)
 		this.setState({
       edittedTitle: title,
       edittedDescription: description,
@@ -59,7 +51,6 @@ class MeetingCard extends Component {
     }
     return actions;
   }
-
   handleCancelEdit() {
 		let { title, description, startDate, endDate, location, createdBy, type, id } = this.props.meeting;
     this.setState({
@@ -71,7 +62,6 @@ class MeetingCard extends Component {
       openEditForm: false,
     });
   }
-
   handleSaveEdit(eventId) {
     const {
       edittedTitle, edittedDescription, edittedStart, edittedEnd, edittedLocation,
@@ -82,7 +72,6 @@ class MeetingCard extends Component {
       );
     this.setState({ openEditForm: false });
   }
-
   handleRemoveScheduleItem(eventId, handleCloseDialog) {
     swal({
       title: 'Are you sure?',
@@ -98,14 +87,9 @@ class MeetingCard extends Component {
       }
     });
   }
-
-
-
-
-	removeMeeting(){
-		var meetingId = this.props.meeting.id;
-		var groupId = this.props.groupId;
-
+	removeMeeting() {
+		const meetingId = this.props.meeting.id;
+		const { groupId } = this.props.groupId;
 		swal({
 		  title: "Are you sure?",
 		  text: "You will not be able to recover this item!",
@@ -118,30 +102,24 @@ class MeetingCard extends Component {
   			GroupScheduleItemStore.removeScheduleItem(meetingId, groupId);
 		  }
 		});
-
 	}
-
-	closeEditForm(){
-		this.setState({showEditForm: false})
+	openMinutePageFunc() {
+		MeetingStore.getSelectedMeeting(this.props.meeting);
+		this.props.openMinutePage();
 	}
-
-	openEditForm(){
-		console.log("OPEN EDIT FORM")
-		MeetingStore.editFormSuccess = false;
-		this.setState({showEditForm: true})
+	handleCloseCalendarForm() {
+		const { title, description, location, startDate, endDate, createdBy, type, id } = this.props.meeting;
+		this.setState({
+			edittedTitle: title,
+			edittedDescription: description,
+			edittedLocation: location,
+			edittedStart: startDate,
+			edittedEnd: endDate,
+			openEditForm: false,
+		});
 	}
-
-	openMinuteModal(){
-		this.setState({openMinuteForm: true});
-	}
-
-	handleClose(){
-		this.setState({openMinuteForm: false})
-	}
-
 	renderEditMeetingDialog() {
-		let { title, description, startDate, endDate, createdBy, itemType, id } = this.props.meeting;
-
+	const { title, description, startDate, endDate, createdBy, itemType, id } = this.props.meeting;
 	return (
 		<Dialog
         actions={this.getActions(itemType, this.handleCloseDialog, id)}
@@ -204,27 +182,12 @@ class MeetingCard extends Component {
 	);
 }
 
-handleCloseCalendarForm() {
-	let { title, description, location, startDate, endDate, createdBy, type, id } = this.props.meeting;
-
-	this.setState({
-		edittedTitle: title,
-		edittedDescription: description,
-		edittedLocation: location,
-		edittedStart: startDate,
-		edittedEnd: endDate,
-		openEditForm: false,
-	});
-}
-
-	render(){
-		console.log("meeting in meeting card", this.props.meeting)
-		let { title, description, startDate, endDate, createdBy, type, id } = this.props.meeting;
+	render() {
+		const { title, description, startDate, endDate } = this.props.meeting;
       	const start = moment(startDate).format("h:mm a");
         const end = moment(endDate).format("h:mm a");
         const date = moment(startDate).format("dddd, Do MMMM");
-
-		return(
+		return (
 			<div>
 			  <Card className="standardTopGap">
 			    <CardTitle title={title} subtitle={` ${date}, ${start} - ${end}`} />
@@ -232,24 +195,12 @@ handleCloseCalendarForm() {
 			      {description}
 			    </CardText>
 			    <CardActions>
-			    	<FlatButton label="View Minutes" onClick={this.openMinuteModal.bind(this)}/>
-			      	<FlatButton label="Edit Meeting" onClick={() => this.setState({ openEditForm: true })}/>
+			    		<FlatButton label="View Agenda" onClick={() => this.openMinutePageFunc()} />
+			      	<FlatButton label="Edit Meeting" onClick={() => this.setState({ openEditForm: true })} />
 			      	<FlatButton label="Remove Meeting" onClick={this.removeMeeting.bind(this)}/>
 			    </CardActions>
 			  </Card>
-			  {
-			  	// this.state.showEditForm ? <EditMeetingForm meeting={this.props.meeting} closeEditForm={this.closeEditForm.bind(this)}/>: <span></span>
-			  }
 				{ this.renderEditMeetingDialog() }
-
-
-			  	<Modal show={this.state.openMinuteForm} onHide={this.handleClose.bind(this)}>
-		          <Modal.Header closeButton>
-		            <Modal.Title>Add Minute for {title}</Modal.Title>
-		          </Modal.Header>
-		          <Minute handleClose={this.handleClose.bind(this)} meeting={this.props.meeting}/>
-		        </Modal>
-
 			</div>
 		)
 	}

@@ -12,7 +12,9 @@ const joinAssignmentGroup = async (groupId, username) => axios.put(`/group/join/
 
 const leaveAssignmentGroup = async (groupId, username) => axios.put(`/group/leave/${groupId}/${username}`)
 
+const submitAssignmentFile = async (formData, assignmentId) => axios.post(`/assignment/submit/${assignmentId}`, formData)
+
 export {
   fetchModuleAssignment, createGroupAssignment, createIndividualAssignment, deleteAssignment,
-  joinAssignmentGroup, leaveAssignmentGroup,
+  joinAssignmentGroup, leaveAssignmentGroup, submitAssignmentFile,
 }; // eslint-disable-line

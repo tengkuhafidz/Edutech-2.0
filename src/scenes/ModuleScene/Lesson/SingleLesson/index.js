@@ -35,38 +35,26 @@ componentDidMount(){
     })
 }
 
-componentDidUpdate(prevProps) {
+componentDidUpdate(prevProps, prevState){
   if (prevProps.uploadedFile !== this.props.uploadedFile) {
-    this.setState({ uploadedFile: this.props.uploadedFile })
+    this.setState({uploadedFile: this.props.uploadedFile})
   }
-}
-
-renderUploadFileBtn(lessonId) {
-  const wellStyles = { maxWidth: 400, margin: '0 auto 10px' };
-  const userType = localStorage.getItem('userType');
-  if (userType === 'instructor') {
-    return (
-      <div className="well" style={wellStyles}>
-        <UploadFileBtn lessonId={lessonId}/>
-      </div>
-    )
-  }
-  return '';
 }
 
 renderAttachmentBtn() {
+    const wellStyles = { maxWidth: 400, margin: '0 auto 10px' };
     const lessonId = this.props.lesson.id;
     const lesson = toJS(this.props.lesson);
-    const files = this.state.files;
-    const uploadedFile = this.state.uploadedFile;
-    let fileListArea = (<span>LOADING...</span>)
-    let downloadAllFileBtnArea = (<span></span>)
-    let uploadedFileArea = (<span></span>)
-    if (this.state.uploadedFile.length>0){
+    var files = this.state.files;
+    var uploadedFile = this.state.uploadedFile;
+    var fileListArea = (<span>LOADING...</span>)
+    var downloadAllFileBtnArea = (<span></span>)
+    var uploadedFileArea = (<span></span>)
+    if (this.state.uploadedFile.length > 0) {
       console.log("this uploaded file:", this.state.uploadedFile);
     }
 
-    if (files && files.length > 0) {
+    if (files && files.length>0) {
       fileListArea = files.map((file) => {
         return <DownloadSingleFile key={file.id} file={file} lessonId={lessonId}/>
       })
@@ -74,13 +62,11 @@ renderAttachmentBtn() {
     } else {
       fileListArea = (<p>No file for this lesson.</p>)
     }
-    if (uploadedFile && uploadedFile.length > 0 )
+
+    if (uploadedFile && uploadedFile.length > 0) {
       uploadedFileArea = (<DownloadSingleFile file={uploadedFile} lessonId={lessonId}/>)
-
-
-
+    }
     return (
-
             <Row className="show-grid">
               <Col xs={12} md={8}>
                 <ListGroup>
@@ -89,10 +75,11 @@ renderAttachmentBtn() {
                 {downloadAllFileBtnArea}
               </Col>
               <Col xs={6} md={4}>
-              {this.renderUploadFileBtn(lessonId)}
+                <div className="well" style={wellStyles}>
+                  <UploadFileBtn lessonId={lessonId}/>
+                </div>
               </Col>
             </Row>
-
     )
   }
 
@@ -103,7 +90,6 @@ renderAttachmentBtn() {
     const date = moment(startDate).format("dddd, Do MMMM");
     const currentDateTime = moment(new Date());
     const lessonEndDateTime = moment(endDate);
-
 
     return(
       <Panel eventKey={id}>
