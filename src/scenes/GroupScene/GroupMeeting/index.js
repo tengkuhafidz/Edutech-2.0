@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import { Paper } from 'material-ui';
-import {observer} from 'mobx-react';
+import { observer } from 'mobx-react';
 import {toJS} from 'mobx';
 import axios from 'axios';
 import moment from 'moment';
@@ -18,6 +18,7 @@ import MeetingStore from '../../../stores/MeetingStore/MeetingStore';
 import GroupStore from '../../../stores/GroupStore/GroupStore';
 import ScheduleItemStore from '../../../stores/ScheduleItemStore/ScheduleItemStore';
 import GroupCalendar from '../GroupCalendar';
+import MinutePage from './MinutePage';
 
 moment.locale('en');
 momentLocalizer();
@@ -33,7 +34,8 @@ class GroupMeeting extends Component {
         location: null,
         startTime: new Date(),
         endTime: new Date(),
-        showMeetingForm: false
+        showMeetingForm: false,
+        minutePageState: false
       }
   }
   checkSelectedDateValid(startTime , endTime) {
@@ -53,84 +55,91 @@ class GroupMeeting extends Component {
     }
     return true;
   }
-
   addMeetingItem() {
-    var title = this.state.title;
-    var description = this.state.description;
-    var startTime = this.state.startTime;
-    var endTime = this.state.endTime;
-    var location = this.state.location;
-    var groupId = this.props.groupId;
-    var type = "meeting";
+    const {
+      title, description, startTime, endTime, location
+    } = this.state;
+    const { groupId } = this.props;
+    const type = 'meeting';
 
-    if(this.state.checked){
+    if (this.state.checked) {
       MeetingStore.addMeeting(title, description, startTime, endTime, location, groupId, type);
-      if(MeetingStore.addFormSuccess)
-        this.setState({showMeetingForm: false})
-    } else{
-      var valid = this.checkSelectedDateValid(startTime, endTime);
-      if(valid){
+      if (MeetingStore.addFormSuccess) {
+        this.setState({ showMeetingForm: false })
+      }
+    } else {
+      const valid = this.checkSelectedDateValid(startTime, endTime);
+      if (valid) {
         MeetingStore.addMeeting(title, description, startTime, endTime, location, groupId, type);
-        if(MeetingStore.addFormSuccess)
-          this.setState({showMeetingForm: false})
+        if (MeetingStore.addFormSuccess) {
+          this.setState({ showMeetingForm: false })
+        }
       }
     }
-
   }
-
-  closeMeetingForm(){
+  closeMeetingForm() {
     // MeetingStore.addFormSuccess = false;
-    this.setState({showMeetingForm: false})
+    this.setState({ showMeetingForm: false })
   }
-
+  handleChecked(event) {
+    this.setState({ checked: event.target.checked })
+  }
+  meetingFormShow() {
+    MeetingStore.addFormSuccess = false;
+    this.setState({ showMeetingForm: true })
+  }
+  openMinutePage() {
+    this.setState({ minutePageState: true });
+  }
+  closeMinutePage() {
+    this.setState({ minutePageState: false })
+  }
   renderMeetingInput() {
     return (
       <Paper className="paperDefault">
-          <div className="text-right" >
-              <i className="fas fa-times fa-1x btnHover" onClick={this.closeMeetingForm.bind(this)}></i>
+            <div className="text-right" >
+              <i className="fas fa-times fa-1x btnHover" onClick={() => this.closeMeetingForm()}></i>
             </div>
           <GroupCalendar step={60} />
       </Paper>
     );
   }
-
-  handleChecked(event){
-    this.setState({checked: event.target.checked})
-  }
-
-  meetingFormShow(){
-    MeetingStore.addFormSuccess = false;
-    this.setState({showMeetingForm: true})
-  }
-
-  renderCreateButton(){
-    let meetingsObservable = MeetingStore.meetings;
-    var meetings = toJS(meetingsObservable);
+  renderCreateButton() {
     const groupMeetings = GroupScheduleItemStore.meetingItems;
-    console.log('meetings', meetings)
-
     return (
       <div>
-        <Button bsStyle="primary" onClick ={this.meetingFormShow.bind(this)}>
+        <Button bsStyle="primary" onClick={() => this.meetingFormShow()}>
           Create Meeting
-          <Glyphicon glyph="plus" style={{marginLeft: '5px'}}/>
+          <Glyphicon glyph="plus" style={{ marginLeft: '5px' }} />
         </Button>
         {
-            groupMeetings.map((meeting, index) =>{
-
-              return (<MeetingCard key={meeting.id} meeting={meeting} groupId={this.props.groupId}/>);
+            groupMeetings.map((meeting) => {
+              return (<MeetingCard
+                key={meeting.id}
+                meeting={meeting}
+                groupId={this.props.groupId}
+                openMinutePage={() => this.openMinutePage()}
+                closeMinutePage={() => this.closeMinutePage()}
+                />);
             })
         }
       </div>
       )
   }
-
-
-  render(){
-    console.log("checkbox condition", this.state.checked)
-    return(
+  renderMultiComponents() {
+      console.log('minutePageState: ', this.state.minutePageState)
+      if (this.state.showMeetingForm) {
+        return (<div>{this.renderMeetingInput()}</div>)
+      } else if (this.state.minutePageState) {
+        return (<MinutePage closeMinutePage={() => this.closeMinutePage()} groupId={this.props.groupId} />)
+      }
+      return (<div>{this.renderCreateButton()}</div>)
+  }
+  render() {
+    // console.log("checkbox condition", this.state.checked)
+    return (
       <div className="standardTopGap">
-        {this.state.showMeetingForm ? this.renderMeetingInput() : this.renderCreateButton() }
+        {this.renderMultiComponents()}
       </div>
     )
   }

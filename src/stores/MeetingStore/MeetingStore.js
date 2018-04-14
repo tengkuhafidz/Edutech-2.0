@@ -3,6 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import {Meeting} from './Meeting';
 import swal from 'sweetalert';
+import _ from 'lodash';
 
 import ScheduleItemStore from '../ScheduleItemStore/ScheduleItemStore';
 // let fetchedItems = fetchScheduleItems();
@@ -11,6 +12,7 @@ class MeetingStore {
     @observable meetings = [];
     @observable editFormSuccess;
     @observable addFormSuccess = false;
+    @observable selectedMeeting = []; // for meeting minute page
 
     @action
 	populateMeetings(groupId) {
@@ -20,6 +22,14 @@ class MeetingStore {
 	    .then((res) => {
         console.log('Populating MeetingStore', res.data);
 	      this.meetings = res.data;
+
+        if (this.selectedMeeting !== []) {
+          const selectedMeetingId = this.selectedMeeting.id;
+          const index = _.findIndex(this.meetings, o => o.id === selectedMeetingId);
+          console.log('index of selected meeting: ', index);
+          this.selectedMeeting = this.meetings[index];
+        }
+
         ScheduleItemStore.populateMergedScheduleItemsForGroup(groupId);
 	    })
 	    .catch((error) => {
@@ -27,7 +37,6 @@ class MeetingStore {
         swal('Error!', 'Network error in getting meetings.', 'error');
 	    });
      }
-
 
      @action
     addMeeting(title, description, startDate, endDate, location, groupId, itemType) {
@@ -105,6 +114,10 @@ class MeetingStore {
       })
     }
 
+    @action
+    getSelectedMeeting(meeting) {
+      this.selectedMeeting = meeting;
+    }
 
     @action
     getIndex(value, arr, prop) {

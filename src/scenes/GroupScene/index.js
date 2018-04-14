@@ -180,7 +180,6 @@ export default class GroupScene extends Component {
               <Row className="sideSectionItem">
                 <div>
                   {this.renderUpcomingMeetings()}
-
                 </div>
               </Row>
               <Divider />

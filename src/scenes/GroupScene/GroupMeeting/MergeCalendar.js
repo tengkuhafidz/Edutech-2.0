@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import {toJS} from 'mobx';
-import {observer} from 'mobx-react';
+import { toJS } from 'mobx';
+import { observer } from 'mobx-react';
 import { Paper, Tabs, Tab } from 'material-ui';
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment';
-import axios from 'axios';
 
 import 'react-widgets/dist/css/react-widgets.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -30,17 +29,17 @@ class MergeCalendar extends Component {
 	}
 
 	getEventArray(membersScheduleItems) {
-		var scheduleItemArr = [];
-		if(membersScheduleItems && membersScheduleItems.length>0){
-			for(var i=0 ; i<membersScheduleItems.length ; i++){
-				var namesArr =[];
-				if(membersScheduleItems[i].itemType === "timetable"){
-					for(var j=0 ; j<membersScheduleItems[i].assignedTo.length ; j++){
+		let scheduleItemArr = [];
+		if (membersScheduleItems && membersScheduleItems.length > 0) {
+			for (let i = 0; i < membersScheduleItems.length; i++) {
+				const namesArr = [];
+				if (membersScheduleItems[i].itemType === 'timetable') {
+					for (let j = 0; j < membersScheduleItems[i].assignedTo.length; j++) {
 						namesArr.push(membersScheduleItems[i].assignedTo[j].username);
 					}
 					scheduleItemArr = scheduleItemArr.concat({
 						id: membersScheduleItems[i].id,
-						title: namesArr.join(", "),
+						title: namesArr.join(', '),
 						allDay: false,
 						start: new Date(membersScheduleItems[i].startDate),
 						end: new Date(membersScheduleItems[i].endDate),
@@ -58,12 +57,11 @@ class MergeCalendar extends Component {
 	}
 
 
-	render(){
-		let membersScheduleItems = toJS(GroupScheduleItemStore.scheduleItems);
-		console.log('membersScheduleItems', membersScheduleItems)
-		let eventsArray = this.getEventArray(membersScheduleItems);
+	render() {
+		const membersScheduleItems = toJS(GroupScheduleItemStore.scheduleItems);
+		const eventsArray = this.getEventArray(membersScheduleItems);
 		console.log('eventsArray', eventsArray)
-		return(
+		return (
 			<div className="groupCalendar">
 			      <ProjectGroupCalendar eventsArray={membersScheduleItems} />
 			</div>
