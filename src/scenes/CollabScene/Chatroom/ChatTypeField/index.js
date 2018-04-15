@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { RaisedButton, TextField } from 'material-ui';
 import { captureTyping, sendMessage } from '../../../../services/socketApi';
 
+import GroupScheduleItemStore from '../../../../stores/ScheduleItemStore/GroupScheduleItemStore';
+
 const containerStyle = {
 	width: '90%',
 	margin: '8px auto',
@@ -28,15 +30,19 @@ export default class ChatTypeField extends Component {
 	}
 
 	handleKeyPress(e) {
-		captureTyping(localStorage.getItem('username'));
+		captureTyping({
+			name: localStorage.getItem('username'),
+			room: GroupScheduleItemStore.collabMeeting.id,
+		});
 	}
 
 	handleSubmit(e) {
 		e.preventDefault();
-		console.log("name: ", this.state.name, ". message: ", this.state.message)
+		console.log("name: ", this.state.name, ". message: ", this.state.message, 'room', GroupScheduleItemStore.collabMeeting.id)
 		sendMessage({
 			name: localStorage.getItem('username'),
-	    message: this.state.message
+	    message: this.state.message,
+			room: GroupScheduleItemStore.collabMeeting.id,
 		})
 	    this.setState({message: ''});
 	}

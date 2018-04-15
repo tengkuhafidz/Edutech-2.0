@@ -1,19 +1,42 @@
 .collabScene {
-   margin: -85px -40px 0 -300px;
+   margin: -85px -46px 0 -300px;
    height: 100vh;
    background-color: white;
    overflow: hidden;
 }
 
-.leftMostSection {
-  padding: 65px 0px 0 20px;
-  border-right: 1px #AAA solid !important;
+.onlineUsersSection {
+  padding: 65px 0px 0 15px;
+  height: 100vh;
+  color: white;
+  width:100px;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.onlineLabel {
+  margin-top: 20px;
+  color: #EEE;
+}
+
+.section {
+  padding: 64px 0px 0 0px;
   height: 100vh;
 }
 
+.singleOnlineUser {
+  margin-top: 20px;
+  text-overflow: ellipsis;
+}
 
-.section {
-  padding: 65px 0px 0 0px;
+.onlineUserImg {
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-bottom: 5px;
+}
+
+.collabChat {
   border-right: 1px #AAA solid !important;
-  height: 100vh;
+}
+
+.collabDraw {
 }
