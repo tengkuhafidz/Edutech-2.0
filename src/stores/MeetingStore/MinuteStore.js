@@ -1,12 +1,13 @@
 
 import { observable, action, computed, toJS } from 'mobx';
 import { Minute } from './Minute';
-import axios from 'axios';
 import moment from 'moment';
 import swal from 'sweetalert';
 
 import { getOneMinute, createMeetingMinute, createAgenda, updateAgenda, deleteAgenda } from '../../services/meetingApi';
+
 import MeetingStore from './MeetingStore';
+import UtilStore from '../UtilStore/UtilStore';
 
 class MinuteStore {
 	@observable minuteList = [];
@@ -37,7 +38,7 @@ class MinuteStore {
 		const meetingminute = new Minute(meeting, startTime, endTime, attendeesObj, [], createdAt, [])
 		try {
 			const res = await createMeetingMinute(meetingminute);
-			swal('Success!', 'Meeting Minute updated successfully.', 'success');
+			UtilStore.openSnackbar('Meeting Minute updated successfully.');
 			this.minuteList = res.data;
 		} catch (e) {
 			console.log(e);
@@ -48,9 +49,9 @@ class MinuteStore {
 	async addAgenda(meetingMinuteId, agenda, groupId) {
 		console.log('agenda in minute store', agenda)
 		try {
-			const minute = await createAgenda(meetingMinuteId, agenda);
+			const minute = await createAgenda(meetingMinuteId, agenda); //eslint-disable-line
 			MeetingStore.populateMeetings(groupId);
-			swal('Success!', 'Agenda created successfully.', 'success');
+			UtilStore.openSnackbar('Agenda added successfully.')
 		} catch (e) {
 			console.log(e)
 		}
@@ -62,7 +63,7 @@ class MinuteStore {
 		try {
 			await updateAgenda(meetingMinuteId, agenda);
 			MeetingStore.populateMeetings(groupId);
-			swal('Success!', 'Updated Agenda successfully.', 'success');
+			UtilStore.openSnackbar('Agenda Updated successfully.')
 		} catch (e) {
 			console.log(e)
 		}
@@ -73,8 +74,7 @@ class MinuteStore {
 		try {
 			const res = await deleteAgenda(agendaId);
 			MeetingStore.populateMeetings(groupId);
-			swal('Success!', 'Agenda removed successfully!', 'success');
-			console.log(res.data);
+			UtilStore.openSnackbar('Agenda removed successfully.')
 		} catch (e) {
 			console.log(e)
 		}

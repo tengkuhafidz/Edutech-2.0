@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, FormGroup, ListGroup, ListGroupItem, ControlLabel, FormControl } from 'react-bootstrap';
 import moment from 'moment';
 import swal from 'sweetalert';
+import _ from 'lodash';
 
 import AssignmentStore from '../../../../stores/ModuleStore/AssignmentStore';
 
@@ -39,11 +40,19 @@ class IndividualAssignmentView extends Component {
   renderDownloadBtn(attachmentId, fileName) {
     return (<Button bsStyle="primary" bsSize="small" className="pull-right" onClick={() => this.downloadFile(attachmentId, fileName)}>Download</Button>)
   }
+  renderFileName(fileName) {
+    if (fileName.includes('qup')) {
+      const newFileName = _.split(fileName, 'qup', 2)
+      console.log('newFileName', newFileName[1]);
+      return newFileName[1];
+    }
+    return fileName;
+  }
   renderSubmissions(assignment) {
     if (assignment.submissions.length > 0) {
       return assignment.submissions.map(item => (
         <ListGroupItem bsStyle="warning">
-          {item.fileName}
+          {this.renderFileName(item.fileName)}
           {this.renderDownloadBtn(item.id, item.fileName)}
           <p>Submitted By: {item.createdBy.username} at {moment(item.createdAt).format('DD/MM/YY hh:mm')}</p>
         </ListGroupItem>
@@ -59,8 +68,7 @@ class IndividualAssignmentView extends Component {
             return (<li>{member.username}</li>)
           }
           return '';
-        }
-       );
+        });
     }
     return '';
   }

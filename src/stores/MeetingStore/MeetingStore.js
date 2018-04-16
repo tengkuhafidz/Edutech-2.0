@@ -5,6 +5,8 @@ import {Meeting} from './Meeting';
 import swal from 'sweetalert';
 import _ from 'lodash';
 
+import UtilStore from '../UtilStore/UtilStore';
+
 import ScheduleItemStore from '../ScheduleItemStore/ScheduleItemStore';
 // let fetchedItems = fetchScheduleItems();
 
@@ -22,14 +24,12 @@ class MeetingStore {
 	    .then((res) => {
         console.log('Populating MeetingStore', res.data);
 	      this.meetings = res.data;
-
         if (this.selectedMeeting !== []) {
           const selectedMeetingId = this.selectedMeeting.id;
           const index = _.findIndex(this.meetings, o => o.id === selectedMeetingId);
           console.log('index of selected meeting: ', index);
           this.selectedMeeting = this.meetings[index];
         }
-
         ScheduleItemStore.populateMergedScheduleItemsForGroup(groupId);
 	    })
 	    .catch((error) => {
@@ -69,9 +69,9 @@ class MeetingStore {
 
     @action
     updateMeeting(id, title, description, startDate, endDate, location, createdBy, groupId) {
-      if(!title || !description || !startDate || !endDate || !location){
+      if(!title || !description || !startDate || !endDate || !location) {
           swal("Warning!", "Please make sure all fields are entered.", "warning");
-        } else if(startDate > endDate) {
+        } else if (startDate > endDate) {
           swal("Time Error!", "Please make sure start time is earlier than end time.", "warning");
         } else{
           var index = this.getIndex(id, this.meetings, "id");
@@ -82,10 +82,9 @@ class MeetingStore {
           this.meetings[index].location = location;
           this.meetings[index].groupId = groupId;
           const dataSet = toJS(this.meetings[index]);
-          console.log("Dataset to put: ", dataSet)
           axios.put(`/scheduleitem/${id}`, dataSet)
           .then((res) => {
-            swal("Success!","Meeting updated successfully." , "success");
+            UtilStore.openSnackbar('Meeting updated successfully.')
             this.populateMeetings(groupId);
             this.editFormSuccess = true;
             return true;
@@ -105,7 +104,7 @@ class MeetingStore {
         if (index > -1) {
           this.meetings.splice(index, 1);
         }
-        swal("Success!", "Meeting removed successfully.", "success")
+        UtilStore.openSnackbar('Meeting removed successfully.')
         this.populateMeetings(groupId);
       })
       .catch((err) => {

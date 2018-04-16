@@ -31,6 +31,7 @@ export default class GroupScene extends Component {
     openMembersDialog: false,
     editView: false,
     tempDescription: null,
+    openAgendaDialog: false,
     activeTabKey: 'Conversations',
   }
   async componentWillMount() {
@@ -90,6 +91,38 @@ export default class GroupScene extends Component {
     );
   }
 
+  renderAgendaDialog() {
+    const { agendas } = GroupScheduleItemStore.sortedUpcomingMeetings[0].meetingMinute;
+    const { title } = GroupScheduleItemStore.sortedUpcomingMeetings[0];
+    const agendaList = agendas.map((agenda, index) => (
+      <ListItem
+        primaryText={`${index+1}) ${agenda.title}`}
+      />
+    ));
+    const actions = [
+     <FlatButton
+       label="Close"
+       primary
+       onClick={() => this.setState({ openAgendaDialog: false })}
+     />,
+    ];
+    return (
+      <Dialog
+        title={`${title} Agendas`}
+        actions={actions}
+        modal={false}
+        open={this.state.openAgendaDialog}
+        onRequestClose={() => this.setState({ openAgendaDialog: false })}
+        autoScrollBodyContent
+      >
+        <Divider />
+        <List>
+          {agendaList}
+        </List>
+      </Dialog>
+    );
+  }
+
   renderUpcomingMeetings() {
     if (GroupScheduleItemStore.sortedUpcomingMeetings[0]) {
       const { title, startDate, endDate, location, id, groupId} = GroupScheduleItemStore.sortedUpcomingMeetings[0];
@@ -103,6 +136,10 @@ export default class GroupScene extends Component {
                 {moment(startDate).format('Do MMMM h:mm a') + ' - '
                   + moment(endDate).format('h:mm a')}
               </p>
+
+              <p>{GroupScheduleItemStore.sortedUpcomingMeetings[0].location}</p>
+              <RaisedButton label="View Agenda" secondary style={{ margin: '15px' }} onClick={() => this.setState({ openAgendaDialog: true })} />
+
               <p>{location}</p>
               <RaisedButton label="Enter" secondary style={{ margin: '15px' }} containerElement={<Link to={`/room/${id}/${groupId}`} target="_blank" />}/>
             </div>
@@ -200,6 +237,7 @@ export default class GroupScene extends Component {
           </Col>
         </Row>
         {this.renderMembersDialog()}
+        {this.renderAgendaDialog()}
       </Animated>
     );
   }
