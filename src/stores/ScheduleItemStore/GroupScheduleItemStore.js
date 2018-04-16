@@ -56,12 +56,6 @@ class GroupScheduleItemStore {
         const scheduleItem = await createScheduleItem(newScheduleItem);
         this.scheduleItems.push(scheduleItem.data);
         UtilStore.openSnackbar(`${scheduleItem.data.title} created as Meeting`);
-        // AnnouncementStore.postAnnouncement(
-        //   `Meeting scheduled for ${GroupStore.selectedGroup.title}`,
-        //    title,
-        //    GroupStore.selectedGroup.members,
-        //    `group/${GroupStore.selectedGroup.id}`,
-        // );
       } catch (e) {
         swal('Error', 'Error adding schedule item', 'error');
       }

@@ -1,14 +1,16 @@
 import React, { Component } from 'react';
-import { Dialog, FlatButton } from 'material-ui';
+import { Dialog, FlatButton, List, ListItem, Divider } from 'material-ui';
 import { Badge, Row, Col, ControlLabel, FormControl } from 'react-bootstrap';
 import { DateTimePicker } from 'react-widgets';
 import Autosuggest from 'react-bootstrap-autosuggest';
 import moment from 'moment';
 import swal from 'sweetalert';
 import { observer } from 'mobx-react';
+import { toJS } from 'mobx';
 
 import { getScheduleTypeColor } from '../../../../utils/helpers';
 import ScheduleItemStore from '../../../../stores/ScheduleItemStore/ScheduleItemStore';
+import GroupScheduleItemStore from '../../../../stores/ScheduleItemStore/GroupScheduleItemStore';
 import GroupStore from '../../../../stores/GroupStore/GroupStore';
 
 @observer
@@ -92,6 +94,31 @@ export default class ViewScheduleItemDialog extends Component {
     );
   }
 
+  renderAgendaList() {
+    const groupScheduleItems = toJS(GroupScheduleItemStore.scheduleItems);
+    const { id } = this.props.selectedEvent;
+    const selectedScheduleItem = groupScheduleItems.filter(item => item.id === id);
+    console.log('selectedScheduleItem: ', selectedScheduleItem[0])
+    if (selectedScheduleItem[0].meetingMinute) {
+      console.log('render agendas lah')
+      const agendaList = selectedScheduleItem[0].meetingMinute.agendas.map((agenda, index) => (
+        <ListItem
+          primaryText={`${index+1}) ${agenda.title}`}
+        />
+      ));
+      return (
+          <div>
+          <Divider />
+          <h4 className="lead">Agenda List</h4>
+          <List>
+            {agendaList}
+          </List>
+          </div>
+      );
+    }
+    return '';
+  }
+
   renderTime(start, end) {
     if (moment(start).format('Do MMMM YYYY') === moment(end).format('Do MMMM YYYY')) {
       return <p>{moment(start).format('Do MMMM, h:mm a')} - {moment(end).format('h:mm a')}</p>;
@@ -163,13 +190,13 @@ export default class ViewScheduleItemDialog extends Component {
         <h4>{edittedTitle} @ {edittedLocation} {this.renderType(type)}</h4>
         {this.renderTime(edittedStart, edittedEnd)}
         <p>{this.state.edittedDescription}</p>
+        {this.renderAgendaList()}
       </div>
     );
   }
   render() {
     const { selectedEvent, dialogState, handleCloseDialog } = this.props;
     const { id, type, groupId } = selectedEvent; // eslint-disable-line
-
     return (
       <Dialog
         actions={this.getActions(type, handleCloseDialog, id, groupId)}

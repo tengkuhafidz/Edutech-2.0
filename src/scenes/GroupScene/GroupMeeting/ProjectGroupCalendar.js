@@ -29,15 +29,6 @@ class ProjectGroupCalendar extends Component {
 		        openCalendarCard: false,
 	 			}
 	}
-	openCalendarForm(selectedSlot) {
-		const selectedDate = new Date(selectedSlot.end);
-		const today = new Date();
-		if (selectedDate < today) {
-			console.log('do nothing')
-		} else {
-			this.setState({ openCalendarForm: true, selectedDate: selectedDate, openEditForm:false, openCalendarCard:false })
-		}
-	}
 	handleCloseAll() {
 		this.setState({openCalendarCard: false, openEditForm: false, openCalendarForm: false});
 	}
@@ -82,6 +73,18 @@ class ProjectGroupCalendar extends Component {
 			}
 		}
 		return scheduleItemArr;
+	}
+	openCalendarForm(selectedSlot) {
+		const selectedDate = new Date(selectedSlot.end);
+		const today = new Date();
+		if (selectedDate < today) {
+			console.log('do nothing')
+		} else {
+			this.setState({
+				openCalendarForm: true, selectedDate: selectedDate,
+				openEditForm:false, openCalendarCard:false
+			})
+		}
 	}
 	eventClicked(event) {
 		this.setState({ openCalendarCard: true, selectedEvent: event, openCalendarForm:false, openEditForm: false })

@@ -29,6 +29,7 @@ export default class GroupScene extends Component {
     openMembersDialog: false,
     editView: false,
     tempDescription: null,
+    openAgendaDialog: false,
   }
   async componentDidMount() {
     const { groupId } = this.props.match.params;
@@ -82,6 +83,38 @@ export default class GroupScene extends Component {
     );
   }
 
+  renderAgendaDialog() {
+    const { agendas } = GroupScheduleItemStore.sortedUpcomingMeetings[0].meetingMinute;
+    const { title } = GroupScheduleItemStore.sortedUpcomingMeetings[0];
+    const agendaList = agendas.map((agenda, index) => (
+      <ListItem
+        primaryText={`${index+1}) ${agenda.title}`}
+      />
+    ));
+    const actions = [
+     <FlatButton
+       label="Close"
+       primary
+       onClick={() => this.setState({ openAgendaDialog: false })}
+     />,
+    ];
+    return (
+      <Dialog
+        title={`${title} Agendas`}
+        actions={actions}
+        modal={false}
+        open={this.state.openAgendaDialog}
+        onRequestClose={() => this.setState({ openAgendaDialog: false })}
+        autoScrollBodyContent
+      >
+        <Divider />
+        <List>
+          {agendaList}
+        </List>
+      </Dialog>
+    );
+  }
+
   renderUpcomingMeetings() {
     if (GroupScheduleItemStore.sortedUpcomingMeetings[0]) {
       return (
@@ -95,7 +128,7 @@ export default class GroupScene extends Component {
                   + moment(GroupScheduleItemStore.sortedUpcomingMeetings[0].endDate).format('h:mm a')}
               </p>
               <p>{GroupScheduleItemStore.sortedUpcomingMeetings[0].location}</p>
-              <RaisedButton label="View Agenda" secondary style={{margin: '15px'}} onClick={() => this.setState({ openMembersDialog: true })}/>
+              <RaisedButton label="View Agenda" secondary style={{ margin: '15px' }} onClick={() => this.setState({ openAgendaDialog: true })} />
             </div>
           </div>
         </div>
@@ -191,6 +224,7 @@ export default class GroupScene extends Component {
           </Col>
         </Row>
         {this.renderMembersDialog()}
+        {this.renderAgendaDialog()}
       </Animated>
     );
   }
