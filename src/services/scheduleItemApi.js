@@ -12,8 +12,10 @@ const editScheduleItem = async (id, scheduleItem) => axios.put(`/scheduleitem/${
 
 const findGroupScheduleItems = async groupId => axios.get(`/scheduleitem/members/${groupId}`);
 
+const findScheduleItem = async id => axios.get(`/scheduleitem/${id}`);
 
 export {
   findSemester, findUserScheduleItems, createScheduleItem,
   deleteScheduleItem, editScheduleItem, findGroupScheduleItems,
+  findScheduleItem,
  };

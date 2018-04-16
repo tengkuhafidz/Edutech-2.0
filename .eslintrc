@@ -13,7 +13,7 @@
       "no-mixed-spaces-and-tabs": "off",
       "indent": "off",
       "react/jsx-indent": "off",
-      "linebreak-style": ["error", "windows"],
+      "linebreak-style": "off",
     },
     "env": {
         "browser": true

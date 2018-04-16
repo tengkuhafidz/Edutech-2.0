@@ -134,4 +134,5 @@ const getScheduleTypeColor = (type) => {
   }
 };
 
+
 export { retrieveCookie, formatMergedCalendarEvents, setScheduleItemsColor, getScheduleTypeColor };

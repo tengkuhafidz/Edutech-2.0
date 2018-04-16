@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Drawer, Tabs, Tab } from 'material-ui';
 
-import Notifications from './Notifications';
+import KeyActivities from './KeyActivities';
 import KeyDates from './KeyDates';
 import './styles.css';
 
@@ -21,9 +21,9 @@ export default class RightBar extends Component {
         <Tab label="Key Dates">
           <KeyDates/>
         </Tab>
-        <Tab label="Notifications">
-          <div>
-            <Notifications />
+        <Tab label="Key Activities">
+          <div className="keyActivities">
+            <KeyActivities />
           </div>
         </Tab>
       </Tabs>

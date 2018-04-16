@@ -6,6 +6,11 @@ import { Paper, Divider } from 'material-ui';
 import { Link } from 'react-router-dom';
 import { Doughnut } from 'react-chartjs-2';
 
+import {
+  PERSONAL_ITEM_COLOR, MEETING_ITEM_COLOR,
+  TASK_ITEM_COLOR,
+} from '../../utils/constants';
+
 import TaskStore from '../../stores/TaskStore/TaskStore';
 import MyTasks from '../HomeScene/MyTasks';
 import './styles.css';
@@ -22,9 +27,9 @@ export default class MyTasksScene extends Component {
     	datasets: [{
     		data: TaskStore.taskProgressData,
     		backgroundColor: [
-    		'#FF6384',
-    		'#36A2EB',
-    		'#FFCE56',
+    		PERSONAL_ITEM_COLOR,
+    		MEETING_ITEM_COLOR,
+    		TASK_ITEM_COLOR,
     		],
     		hoverBackgroundColor: [
     		'#FF6384',

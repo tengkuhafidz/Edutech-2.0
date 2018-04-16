@@ -23,9 +23,7 @@ class AnnouncementStore {
 
     @action
     async postAnnouncement(title, message, assignedTo, path) {
-      console.log('postAnnouncement title', title)
       const newAnnouncement = new Announcement(title, message, assignedTo, path);
-      console.log('newAnnouncement', newAnnouncement);
       try {
         const announcement = await postAnnouncement(newAnnouncement);
         this.announcements.unshift(announcement.data);

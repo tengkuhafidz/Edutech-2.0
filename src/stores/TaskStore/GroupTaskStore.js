@@ -37,10 +37,10 @@ class GroupTaskStore {
           ScheduleItemStore.populateScheduleItems(localStorage.getItem('username'));
         }
         AnnouncementStore.postAnnouncement(
-          `Task Created in ${GroupStore.selectedGroup.title}`,
-           task.title,
+          GroupStore.selectedGroup.title,
+           `${task.title} created as task`,
            GroupStore.selectedGroup.members,
-           `group/${GroupStore.selectedGroup.id}`,
+           `/group/${GroupStore.selectedGroup.id}?tabKey=Tasks`,
         );
         UtilStore.openSnackbar('Task added');
       } catch (e) {

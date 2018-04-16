@@ -5,6 +5,7 @@ import { RaisedButton, Divider, Paper, FlatButton, List, ListItem, Avatar, Dialo
 import moment from 'moment';
 import './styles.css';
 
+import AnnouncementStore from '../../../stores/AnnouncementStore/AnnouncementStore';
 import AddAssessmentDialog from './AddAssessmentDialog';
 import AssessmentListView from './AssessmentListView';
 import ModuleStore from '../../../stores/ModuleStore/ModuleStore';
@@ -56,6 +57,12 @@ class RightPanel extends Component {
         title, description, startDate,
         endDate, location, assignedTo, itemType, moduleCode, groupId,
       );
+    AnnouncementStore.postAnnouncement(
+      moduleCode,
+      `${title} created as assessment`,
+      ModuleStore.selectedModule.members,
+      `/module/${moduleCode}`,
+    );
     this.handleCloseAssessmentForm();
   }
   openAssessmentDialog() {
