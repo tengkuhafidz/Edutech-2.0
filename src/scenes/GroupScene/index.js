@@ -92,56 +92,54 @@ export default class GroupScene extends Component {
   }
 
   renderAgendaDialog() {
-    const { agendas } = GroupScheduleItemStore.sortedUpcomingMeetings[0].meetingMinute;
-    const { title } = GroupScheduleItemStore.sortedUpcomingMeetings[0];
-    const agendaList = agendas.map((agenda, index) => (
-      <ListItem
-        primaryText={`${index+1}) ${agenda.title}`}
-      />
-    ));
-    const actions = [
-     <FlatButton
-       label="Close"
-       primary
-       onClick={() => this.setState({ openAgendaDialog: false })}
-     />,
-    ];
-    return (
-      <Dialog
-        title={`${title} Agendas`}
-        actions={actions}
-        modal={false}
-        open={this.state.openAgendaDialog}
-        onRequestClose={() => this.setState({ openAgendaDialog: false })}
-        autoScrollBodyContent
-      >
-        <Divider />
-        <List>
-          {agendaList}
-        </List>
-      </Dialog>
-    );
+    if (GroupScheduleItemStore.sortedUpcomingMeetings[0] && GroupScheduleItemStore.sortedUpcomingMeetings[0].meetingMinute) {
+      const { agendas } = GroupScheduleItemStore.sortedUpcomingMeetings[0].meetingMinute;
+      const { title } = GroupScheduleItemStore.sortedUpcomingMeetings[0];
+      const agendaList = agendas.map((agenda, index) => (
+        <ListItem
+          primaryText={`${index+1}) ${agenda.title}`}
+        />
+      ));
+      const actions = [
+       <FlatButton
+         label="Close"
+         primary
+         onClick={() => this.setState({ openAgendaDialog: false })}
+       />,
+      ];
+      return (
+        <Dialog
+          title={`${title} Agendas`}
+          actions={actions}
+          modal={false}
+          open={this.state.openAgendaDialog}
+          onRequestClose={() => this.setState({ openAgendaDialog: false })}
+          autoScrollBodyContent
+        >
+          <Divider />
+          <List>
+            {agendaList}
+          </List>
+        </Dialog>
+      );
+    }
   }
 
   renderUpcomingMeetings() {
     if (GroupScheduleItemStore.sortedUpcomingMeetings[0]) {
       const { title, startDate, endDate, location, id, groupId} = GroupScheduleItemStore.sortedUpcomingMeetings[0];
       return (
-        <div>
-          <p className="lead">Upcoming Meeting:</p>
+        <div className="sideSectionItem">
           <div className="paperDefault standardTopGap">
             <div className="">
+              <p>Upcoming Meeting:</p> 
               <h4><b>{title}</b></h4>
               <p>
                 {moment(startDate).format('Do MMMM h:mm a') + ' - '
                   + moment(endDate).format('h:mm a')}
               </p>
-
-              <p>{GroupScheduleItemStore.sortedUpcomingMeetings[0].location}</p>
-              <RaisedButton label="View Agenda" secondary style={{ margin: '15px' }} onClick={() => this.setState({ openAgendaDialog: true })} />
-
               <p>{location}</p>
-              <RaisedButton label="Enter" secondary style={{ margin: '15px' }} containerElement={<Link to={`/room/${id}/${groupId}`} target="_blank" />}/>
+              <RaisedButton label="View Agenda" primary style={{ margin: '15px' }} onClick={() => this.setState({ openAgendaDialog: true })} />
             </div>
           </div>
         </div>
@@ -185,6 +183,7 @@ export default class GroupScene extends Component {
     }
     return (
       <Animated animationIn="fadeIn" animationOut="fadeOut" isVisible={groupId}>
+        <div className="mainContent">
         <Row>
           <Col md={8}>
             <Paper className="animated fadeIn">
@@ -223,21 +222,28 @@ export default class GroupScene extends Component {
                 <br />
               </Row>
               <Divider />
-              <Row className="sideSectionItem">
+              <Row className="sideSection">
                 <div>
                   {this.renderUpcomingMeetings()}
                 </div>
               </Row>
               <Divider />
               <Row className="">
-                <h1 className="statNumberTask"> {GroupTaskStore.taskDeadlineInAWeek.length} </h1>
+                <h1> {GroupTaskStore.taskDeadlineInAWeek.length} </h1>
                 <p className="lead">deadline in 7 days</p>
+              </Row>
+              <Divider />
+              <Row className="">
+                <h3> Live Collab Room </h3>
+                <p> No member in room currently. </p>
+                <RaisedButton label="Enter Collab Room" primary style={{ margin: '15px' }} containerElement={<Link to={`/room/${groupId}`} target="_blank" />}/>
               </Row>
             </Paper>
           </Col>
         </Row>
         {this.renderMembersDialog()}
         {this.renderAgendaDialog()}
+        </div>
       </Animated>
     );
   }

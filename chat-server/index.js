@@ -23,22 +23,21 @@ io.on('connection', (socket) => {
         socket.join(data.room);
         users.removeUser(socket.id);
         users.addUser(socket.id, data.user, data.room);
+        console.log(socket.id, 'in room', data.room)
+
         console.log('users.getUserList(data.room)', users.getUserList(data.room))
         io.to(data.room).emit('updateUserList', users.getUserList(data.room));
-
-        console.log(socket.id, 'in room', data.room)
     });
 
     // Handle chat event
     socket.on('chat', function(data){
-        // console.log(data);
+        console.log('chat in', data);
         io.to(data.room).emit('chat', data);
     });
 
     // Handle typing event
     socket.on('typing', function(data){
-        console.log(' typing data', data)
-        socket.broadcast.to(data.room).emit('typing', data.name);
+        socket.broadcast.to(data.room).emit('typing in', data.name);
     });
 
     //handle whiteboard
